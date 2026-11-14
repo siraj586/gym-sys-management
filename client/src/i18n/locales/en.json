@@ -1,0 +1,14 @@
+{
+  "app": { "name": "Calisthenics Coach" },
+  "nav": { "home": "Home", "login": "Log in" },
+  "language": { "switchTo": "العربية" },
+  "home": {
+    "title": "Master your own bodyweight",
+    "subtitle": "A monthly membership: train any day the gym is open and follow a program built by your coach."
+  },
+  "login": { "title": "Log in" },
+  "admin": { "title": "Coach dashboard" },
+  "portal": { "title": "Client portal" },
+  "placeholder": { "note": "This page is built in a later phase." },
+  "notFound": { "title": "Page not found", "back": "Back to home" }
+}

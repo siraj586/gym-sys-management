@@ -1,0 +1,15 @@
+# Local development database only. Production uses a managed PostgreSQL with its own credentials.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: calisthenics
+      POSTGRES_PASSWORD: calisthenics_dev
+      POSTGRES_DB: calisthenics
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

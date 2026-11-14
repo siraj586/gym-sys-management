@@ -1,0 +1,307 @@
+// Monthly-membership gym: members pay per month, come any day, and the coach
+// records attendance, payments, training programs and progress.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  CLIENT
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+}
+
+enum ExerciseUnit {
+  REPS
+  SECONDS
+  KG
+}
+
+// ---------- Accounts ----------
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CLIENT)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  member           Member?
+  refreshTokens    RefreshToken[]
+  paymentsRecorded Payment[]
+  checkInsRecorded CheckIn[]
+  auditLogs        AuditLog[]
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// ---------- Members ----------
+
+model Member {
+  id               String    @id @default(uuid())
+  // Null when the coach added the member and no login account exists yet.
+  userId           String?   @unique
+  user             User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  firstName        String
+  lastName         String
+  phone            String
+  email            String?
+  dateOfBirth      DateTime? @db.Date
+  emergencyContact String?
+  healthNotes      String? // coach-only
+  coachNotes       String? // coach-only
+  archivedAt       DateTime? // members are archived, never deleted
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  subscriptions      Subscription[]
+  checkIns           CheckIn[]
+  programs           MemberProgram[]
+  performanceRecords PerformanceRecord[]
+  bodyMeasurements   BodyMeasurement[]
+  progressNotes      ProgressNote[]
+
+  @@index([lastName, firstName])
+}
+
+// ---------- Subscriptions and payments ----------
+
+model Plan {
+  id             String   @id @default(uuid())
+  name           String
+  priceCents     Int
+  durationMonths Int      @default(1)
+  description    String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+// One row per paid period. "Active" and "expired" are derived from endDate,
+// so there is no stored status that can go stale.
+model Subscription {
+  id          String    @id @default(uuid())
+  memberId    String
+  member      Member    @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  planId      String
+  plan        Plan      @relation(fields: [planId], references: [id], onDelete: Restrict)
+  // Snapshot of the plan at purchase time: editing a plan never changes sold periods.
+  planName    String
+  priceCents  Int
+  startDate   DateTime  @db.Date
+  endDate     DateTime  @db.Date // last valid day, e.g. start 3 Oct -> end 3 Nov
+  cancelledAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  payments Payment[]
+
+  @@index([memberId, endDate])
+  @@index([endDate])
+}
+
+// Paid / not paid is derived: sum of non-voided payments against priceCents.
+model Payment {
+  id             String        @id @default(uuid())
+  subscriptionId String
+  subscription   Subscription  @relation(fields: [subscriptionId], references: [id], onDelete: Restrict)
+  amountCents    Int
+  method         PaymentMethod
+  paidAt         DateTime      @db.Date
+  reference      String?
+  note           String?
+  recordedById   String
+  recordedBy     User          @relation(fields: [recordedById], references: [id], onDelete: Restrict)
+  // Payments are voided, never deleted, so income history always adds up.
+  voidedAt       DateTime?
+  voidReason     String?
+  createdAt      DateTime      @default(now())
+
+  @@index([subscriptionId])
+  @@index([paidAt])
+}
+
+// ---------- Attendance ----------
+
+model CheckIn {
+  id           String   @id @default(uuid())
+  memberId     String
+  member       Member   @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  date         DateTime @db.Date
+  checkedInAt  DateTime @default(now())
+  recordedById String
+  recordedBy   User     @relation(fields: [recordedById], references: [id], onDelete: Restrict)
+
+  // The database itself guarantees one check-in per member per day.
+  @@unique([memberId, date])
+  @@index([date])
+}
+
+// ---------- Training programs ----------
+
+model Exercise {
+  id       String       @id @default(uuid())
+  name     String       @unique
+  unit     ExerciseUnit
+  isActive Boolean      @default(true)
+
+  programExercises   ProgramExercise[]
+  performanceRecords PerformanceRecord[]
+}
+
+model Program {
+  id         String    @id @default(uuid())
+  name       String
+  level      String?
+  goal       String?
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  days        ProgramDay[]
+  assignments MemberProgram[]
+}
+
+model ProgramDay {
+  id        String  @id @default(uuid())
+  programId String
+  program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  position  Int
+  title     String
+
+  exercises ProgramExercise[]
+
+  @@index([programId, position])
+}
+
+model ProgramExercise {
+  id          String     @id @default(uuid())
+  dayId       String
+  day         ProgramDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  exerciseId  String
+  exercise    Exercise   @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  position    Int
+  sets        Int
+  target      Int // reps, seconds or kg, according to the exercise unit
+  restSeconds Int?
+  note        String?
+
+  @@index([dayId, position])
+}
+
+// A member has one active program at a time (endedAt is null); older rows are history.
+model MemberProgram {
+  id         String    @id @default(uuid())
+  memberId   String
+  member     Member    @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  programId  String
+  program    Program   @relation(fields: [programId], references: [id], onDelete: Restrict)
+  assignedAt DateTime  @default(now())
+  endedAt    DateTime?
+
+  @@index([memberId, endedAt])
+  @@index([programId])
+}
+
+// ---------- Progress ----------
+
+model PerformanceRecord {
+  id         String   @id @default(uuid())
+  memberId   String
+  member     Member   @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  value      Float
+  recordedAt DateTime @db.Date
+  note       String?
+
+  @@index([memberId, exerciseId, recordedAt])
+}
+
+model BodyMeasurement {
+  id         String   @id @default(uuid())
+  memberId   String
+  member     Member   @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  recordedAt DateTime @db.Date
+  weightKg   Float?
+  bodyFatPct Float?
+  chestCm    Float?
+  waistCm    Float?
+  armCm      Float?
+  thighCm    Float?
+  note       String?
+
+  @@index([memberId, recordedAt])
+}
+
+model ProgressNote {
+  id        String   @id @default(uuid())
+  memberId  String
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([memberId, createdAt])
+}
+
+// ---------- Site and system ----------
+
+// Single row (id = 1).
+model Settings {
+  id           Int    @id @default(1)
+  businessName String
+  timezone     String @default("UTC")
+  currency     String @default("USD")
+}
+
+model GalleryImage {
+  id        String   @id @default(uuid())
+  url       String
+  caption   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  contact   String // email or phone, as typed in the contact form
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String
+  entityId  String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+}

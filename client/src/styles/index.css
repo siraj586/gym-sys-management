@@ -1,0 +1,31 @@
+@import 'tailwindcss';
+
+/*
+  Design tokens from the approved wireframes. Tailwind turns each one into
+  utilities: --color-lime gives bg-lime, text-lime, border-lime, and so on.
+*/
+@theme {
+  --color-ink: #0d0e0b; /* page background */
+  --color-surface: #161813; /* cards, header */
+  --color-surface-2: #1e211a;
+  --color-line: #2b2f25; /* borders */
+  --color-fg: #f3f5ec; /* main text */
+  --color-soft: #c5cab9; /* secondary text */
+  --color-muted: #a4aa98; /* captions */
+  --color-lime: #c8f53a; /* accent */
+  --color-lime-dim: #4e5f1e;
+  --color-warn: #f5b83a;
+  --color-danger: #ff8e80;
+
+  /* Inter and Barlow have no Arabic letters, so the browser falls through to Cairo. */
+  --font-sans: Inter, Cairo, system-ui, sans-serif;
+  --font-display: 'Barlow Condensed', Cairo, Inter, sans-serif;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-ink font-sans text-fg antialiased;
+}

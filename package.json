@@ -1,0 +1,30 @@
+{
+  "name": "calisthenics-coach",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "npm run build -w @calisthenics/shared && concurrently -n shared,server,client -c gray,green,cyan \"npm run dev -w @calisthenics/shared\" \"npm run dev -w @calisthenics/server\" \"npm run dev -w @calisthenics/client\"",
+    "build": "npm run build -w @calisthenics/shared && npm run build -w @calisthenics/server && npm run build -w @calisthenics/client",
+    "typecheck": "npm run build -w @calisthenics/shared && npm run typecheck -w @calisthenics/server && npm run typecheck -w @calisthenics/client",
+    "test": "npm run test -w @calisthenics/server",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "db:up": "docker compose up -d db",
+    "db:migrate": "npm run db:migrate -w @calisthenics/server"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "concurrently": "^10.0.7",
+    "eslint": "^10.15.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.2"
+  }
+}
