@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-type Props = { titleKey: 'login.title' | 'admin.title' | 'portal.title' };
+type Props = { titleKey: 'admin.title' | 'portal.title' };
 
 /** Stands in for pages that later phases replace one by one. */
 export function PlaceholderPage({ titleKey }: Props) {

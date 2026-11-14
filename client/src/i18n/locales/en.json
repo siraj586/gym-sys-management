@@ -1,12 +1,45 @@
 {
   "app": { "name": "Calisthenics Coach" },
-  "nav": { "home": "Home", "login": "Log in" },
+  "common": { "loading": "Loading…" },
+  "nav": { "home": "Home", "login": "Log in", "logout": "Log out" },
   "language": { "switchTo": "العربية" },
   "home": {
     "title": "Master your own bodyweight",
     "subtitle": "A monthly membership: train any day the gym is open and follow a program built by your coach."
   },
-  "login": { "title": "Log in" },
+  "auth": {
+    "pitchTitle": "Your training, in one place",
+    "pitchText": "Check your subscription, follow your training program and track your progress.",
+    "newHere": "New here? Create an account, then pay your first month at the gym. The coach activates your subscription when the payment is recorded.",
+    "tabLogin": "Log in",
+    "tabRegister": "Register",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phone": "Phone",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "At least 8 characters.",
+    "confirmPassword": "Confirm password",
+    "submitLogin": "Log in",
+    "submitRegister": "Create account"
+  },
+  "validation": {
+    "required": "This field is required.",
+    "email": "Enter a valid email address.",
+    "phone": "Enter a valid phone number.",
+    "passwordMin": "Use at least 8 characters.",
+    "passwordMismatch": "The two passwords do not match.",
+    "tooLong": "This is too long."
+  },
+  "errors": {
+    "INVALID_CREDENTIALS": "Email or password is incorrect.",
+    "EMAIL_TAKEN": "An account with this email already exists.",
+    "ACCOUNT_DISABLED": "This account is disabled. Contact the gym.",
+    "TOO_MANY_REQUESTS": "Too many attempts. Try again in a few minutes.",
+    "VALIDATION_ERROR": "Check the fields and try again.",
+    "NETWORK": "Cannot reach the server. Check your connection and try again.",
+    "UNKNOWN": "Something went wrong. Try again."
+  },
   "admin": { "title": "Coach dashboard" },
   "portal": { "title": "Client portal" },
   "placeholder": { "note": "This page is built in a later phase." },
