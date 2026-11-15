@@ -35,6 +35,12 @@ membersRouter.put('/:id', async (req, res) => {
   res.json(await membersService.updateMember(req.params.id, memberInputSchema.parse(req.body)));
 });
 
+/** Delete a member for good, with all their history. */
+membersRouter.delete('/:id', async (req, res) => {
+  await membersService.deleteMember(req.params.id, currentUser(req).id);
+  res.status(204).end();
+});
+
 membersRouter.post('/:id/archive', async (req, res) => {
   res.json(await membersService.setArchived(req.params.id, true));
 });
@@ -56,6 +62,12 @@ membersRouter.post('/:id/subscriptions', async (req, res) => {
 export const subscriptionsRouter = Router();
 
 subscriptionsRouter.use(requireAuth, requireRole('OWNER'));
+
+/** Delete one month and its payments (e.g. a renewal saved twice). */
+subscriptionsRouter.delete('/:id', async (req, res) => {
+  await membersService.deleteSubscription(req.params.id, currentUser(req).id);
+  res.status(204).end();
+});
 
 subscriptionsRouter.post('/:id/cancel', async (req, res) => {
   res.json(await membersService.cancelSubscription(req.params.id));

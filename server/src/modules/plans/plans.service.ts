@@ -42,3 +42,33 @@ export async function updatePlan(id: string, input: PlanInput): Promise<Plan> {
     throw err;
   }
 }
+
+/**
+ * Deletes a plan for good. Months already sold keep their own copy of its name
+ * and price, so nothing sold changes. Refused while a client is paying for it
+ * online, so that payment can still become its month.
+ */
+export async function deletePlan(id: string, actorId: string): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    const plan = await tx.plan.findUnique({ where: { id }, select: { name: true } });
+    if (!plan) throw planNotFound();
+    const paying = await tx.onlineCheckout.count({ where: { planId: id, status: 'PENDING' } });
+    if (paying > 0) {
+      throw new AppError(
+        409,
+        'PLAN_BEING_PAID',
+        'A client is paying for this plan online right now. Try again later.',
+      );
+    }
+    await tx.plan.delete({ where: { id } });
+    await tx.auditLog.create({
+      data: {
+        actorId,
+        action: 'plan.delete',
+        entity: 'Plan',
+        entityId: id,
+        meta: { name: plan.name },
+      },
+    });
+  });
+}

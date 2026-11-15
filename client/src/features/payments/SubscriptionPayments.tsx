@@ -89,30 +89,34 @@ export function SubscriptionPayments({
           onCancel={() => setOpen(false)}
         />
       )}
-      {sub.payments.length > 0 && <PaymentHistory payments={sub.payments} onChange={onChange} />}
+      {sub.payments.length > 0 && <PaymentHistory sub={sub} onChange={onChange} />}
     </div>
   );
 }
 
+/** Records a new payment, or corrects the one given as editing. */
 function PaymentForm({
   sub,
   balance,
+  editing,
   onDone,
   onCancel,
 }: {
   sub: Subscription;
+  /** What may still be paid on this month (for an edit: including this payment). */
   balance: number;
+  editing?: Payment;
   onDone: () => void;
   onCancel: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const { today, currency } = useSettings();
-  // Most members pay what is left, so that is the starting amount.
-  const [amount, setAmount] = useState(centsToPriceInput(balance));
-  const [method, setMethod] = useState<(typeof PAYMENT_METHODS)[number]>('CASH');
-  const [paidAt, setPaidAt] = useState(today);
-  const [reference, setReference] = useState('');
-  const [note, setNote] = useState('');
+  // A new payment starts at what is left, the usual case.
+  const [amount, setAmount] = useState(centsToPriceInput(editing?.amountCents ?? balance));
+  const [method, setMethod] = useState<(typeof PAYMENT_METHODS)[number]>(editing?.method ?? 'CASH');
+  const [paidAt, setPaidAt] = useState(editing?.paidAt ?? today);
+  const [reference, setReference] = useState(editing?.reference ?? '');
+  const [note, setNote] = useState(editing?.note ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -148,7 +152,10 @@ function PaymentForm({
 
     setSaving(true);
     try {
-      await apiFetch(`/subscriptions/${sub.id}/payments`, { method: 'POST', body: parsed.data });
+      await apiFetch(editing ? `/payments/${editing.id}` : `/subscriptions/${sub.id}/payments`, {
+        method: editing ? 'PUT' : 'POST',
+        body: parsed.data,
+      });
       onDone();
     } catch (error) {
       if (error instanceof ApiError && error.code === 'PAYMENT_EXCEEDS_BALANCE') {
@@ -221,7 +228,7 @@ function PaymentForm({
       )}
       <div className="flex gap-3">
         <Button type="submit" disabled={saving}>
-          {t('payments.save')}
+          {t(editing ? 'common.save' : 'payments.save')}
         </Button>
         <Button variant="outline" onClick={onCancel}>
           {t('common.cancel')}
@@ -231,10 +238,42 @@ function PaymentForm({
   );
 }
 
-function PaymentHistory({ payments, onChange }: { payments: Payment[]; onChange: () => void }) {
+function PaymentHistory({ sub, onChange }: { sub: Subscription; onChange: () => void }) {
   const { t, i18n } = useTranslation();
   const { currency } = useSettings();
   const [voidingId, setVoidingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const payments = sub.payments;
+
+  const remove = async (p: Payment) => {
+    const amount = formatMoney(p.amountCents, currency, i18n.language);
+    if (
+      !window.confirm(
+        t('payments.confirmDelete', { amount, date: formatDate(p.paidAt, i18n.language) }),
+      )
+    ) {
+      return;
+    }
+    // The month's only payment (e.g. a renewal saved twice): offer to remove the month too.
+    const withMonth =
+      payments.length === 1 &&
+      window.confirm(
+        t('payments.alsoDeleteMonth', {
+          start: formatDate(sub.startDate, i18n.language),
+          end: formatDate(sub.endDate, i18n.language),
+        }),
+      );
+    setError(null);
+    try {
+      await apiFetch(`/payments/${p.id}${withMonth ? '?withMonth=true' : ''}`, {
+        method: 'DELETE',
+      });
+      onChange();
+    } catch (err) {
+      setError(errorMessage(err, t));
+    }
+  };
 
   return (
     <ul className="flex flex-col gap-2 border-s-2 border-line ps-3 text-sm">
@@ -253,17 +292,46 @@ function PaymentHistory({ payments, onChange }: { payments: Payment[]; onChange:
                 {t('payments.voided', { reason: p.voidReason ?? '' })}
               </span>
             ) : (
-              voidingId !== p.id && (
-                <button
-                  type="button"
-                  onClick={() => setVoidingId(p.id)}
-                  className="min-h-11 px-1 text-muted hover:text-danger"
-                >
-                  {t('payments.void')}
-                </button>
+              voidingId !== p.id &&
+              editingId !== p.id && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setEditingId(p.id)}
+                    className="min-h-11 px-1 text-muted hover:text-fg"
+                  >
+                    {t('common.edit')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVoidingId(p.id)}
+                    className="min-h-11 px-1 text-muted hover:text-warn"
+                  >
+                    {t('payments.void')}
+                  </button>
+                </>
               )
             )}
+            <button
+              type="button"
+              onClick={() => void remove(p)}
+              className="min-h-11 px-1 text-muted hover:text-danger"
+            >
+              {t('common.delete')}
+            </button>
           </div>
+          {editingId === p.id && (
+            <PaymentForm
+              sub={sub}
+              editing={p}
+              balance={sub.priceCents - sub.paidCents + p.amountCents}
+              onDone={() => {
+                setEditingId(null);
+                onChange();
+              }}
+              onCancel={() => setEditingId(null)}
+            />
+          )}
           {p.note && <p className="text-muted">{p.note}</p>}
           {voidingId === p.id && (
             <VoidForm
@@ -277,6 +345,11 @@ function PaymentHistory({ payments, onChange }: { payments: Payment[]; onChange:
           )}
         </li>
       ))}
+      {error && (
+        <li role="alert" className="text-sm text-danger">
+          {error}
+        </li>
+      )}
     </ul>
   );
 }

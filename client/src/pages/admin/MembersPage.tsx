@@ -236,6 +236,11 @@ export function MembersPage() {
                 list.reload();
                 counts.reload();
               }}
+              onDeleted={() => {
+                update({ m: null });
+                list.reload();
+                counts.reload();
+              }}
             />
           ) : (
             <p className="rounded-lg border border-dashed border-dash p-6 text-center text-muted">

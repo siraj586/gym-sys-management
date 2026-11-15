@@ -7,7 +7,7 @@ import {
 } from '@calisthenics/shared';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 import { ApiError, apiFetch } from '../../api/http';
 import { useApi } from '../../api/useApi';
 import { Button } from '../../components/ui/Button';
@@ -17,6 +17,7 @@ import { StatusBadge } from '../../components/ui/StatusBadge';
 import { TextField } from '../../components/ui/TextField';
 import { MemberAttendanceCard } from '../../features/attendance/MemberAttendanceCard';
 import { errorMessage } from '../../features/auth/errorMessage';
+import { deleteMemberForGood } from '../../features/members/deleteMember';
 import { Owes, SubscriptionPayments } from '../../features/payments/SubscriptionPayments';
 import { MemberProgramCard } from '../../features/programs/MemberProgramCard';
 import { useSettings } from '../../features/settings/SettingsContext';
@@ -43,6 +44,7 @@ export function MemberPage() {
 
 function MemberProfile({ member, reload }: { member: MemberDetail; reload: () => void }) {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [actionError, setActionError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const date = (iso: string) => formatDate(iso, i18n.language);
@@ -66,6 +68,25 @@ function MemberProfile({ member, reload }: { member: MemberDetail; reload: () =>
     void run(() =>
       apiFetch(`/members/${member.id}/${archiving ? 'archive' : 'restore'}`, { method: 'POST' }),
     );
+  };
+
+  const deleteMonth = (sub: Subscription) => {
+    const confirmText = t('subscriptions.confirmDelete', {
+      plan: sub.planName,
+      start: date(sub.startDate),
+      end: date(sub.endDate),
+    });
+    if (!window.confirm(confirmText)) return;
+    void run(() => apiFetch(`/subscriptions/${sub.id}`, { method: 'DELETE' }));
+  };
+
+  const removeMember = async () => {
+    setActionError(null);
+    try {
+      if (await deleteMemberForGood(t, member)) void navigate('/admin/members', { replace: true });
+    } catch (error) {
+      setActionError(errorMessage(error, t));
+    }
   };
 
   const cancelSubscription = (sub: Subscription) => {
@@ -106,6 +127,14 @@ function MemberProfile({ member, reload }: { member: MemberDetail; reload: () =>
           </ButtonLink>
           <Button variant="outline" disabled={busy} onClick={toggleArchive}>
             {t(member.archivedAt ? 'members.restore' : 'members.archive')}
+          </Button>
+          <Button
+            variant="outline"
+            disabled={busy}
+            className="!border-line !text-soft hover:!border-danger hover:!text-danger"
+            onClick={() => void removeMember()}
+          >
+            {t('common.delete')}
           </Button>
         </div>
       </header>
@@ -168,6 +197,7 @@ function MemberProfile({ member, reload }: { member: MemberDetail; reload: () =>
                   sub={sub}
                   busy={busy}
                   onCancel={() => cancelSubscription(sub)}
+                  onDelete={() => deleteMonth(sub)}
                   onChange={reload}
                 />
               ))}
@@ -203,11 +233,13 @@ function SubscriptionRow({
   sub,
   busy,
   onCancel,
+  onDelete,
   onChange,
 }: {
   sub: Subscription;
   busy: boolean;
   onCancel: () => void;
+  onDelete: () => void;
   onChange: () => void;
 }) {
   const { t, i18n } = useTranslation();
@@ -240,6 +272,14 @@ function SubscriptionRow({
               {t('subscriptions.cancel')}
             </button>
           )}
+          <button
+            type="button"
+            disabled={busy}
+            onClick={onDelete}
+            className="min-h-11 px-2 text-sm text-muted hover:text-danger disabled:opacity-60"
+          >
+            {t('common.delete')}
+          </button>
         </div>
       </div>
       <SubscriptionPayments sub={sub} onChange={onChange} />

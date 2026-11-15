@@ -20,9 +20,22 @@ export function ExercisesPage() {
   // null: nothing open; 'new': the add form; otherwise the id being edited.
   const [editing, setEditing] = useState<string | null>(null);
 
+  const [actionError, setActionError] = useState<string | null>(null);
+
   const saved = () => {
     setEditing(null);
     reload();
+  };
+
+  const remove = async (ex: Exercise) => {
+    if (!window.confirm(t('exercises.confirmDelete', { name: ex.name }))) return;
+    setActionError(null);
+    try {
+      await apiFetch(`/exercises/${ex.id}`, { method: 'DELETE' });
+      reload();
+    } catch (err) {
+      setActionError(errorMessage(err, t));
+    }
   };
 
   return (
@@ -39,6 +52,12 @@ export function ExercisesPage() {
           <Button onClick={() => setEditing('new')}>{t('exercises.add')}</Button>
         )}
       </div>
+
+      {actionError && (
+        <p role="alert" className="text-sm text-danger">
+          {actionError}
+        </p>
+      )}
 
       {editing === 'new' && <ExerciseForm onSaved={saved} onCancel={() => setEditing(null)} />}
 
@@ -71,9 +90,18 @@ export function ExercisesPage() {
                     {!ex.isActive && ` · ${t('exercises.retired')}`}
                   </span>
                 </span>
-                <Button variant="outline" onClick={() => setEditing(ex.id)}>
-                  {t('common.edit')}
-                </Button>
+                <span className="flex gap-2">
+                  <Button variant="outline" onClick={() => setEditing(ex.id)}>
+                    {t('common.edit')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="!border-line !text-soft hover:!border-danger hover:!text-danger"
+                    onClick={() => void remove(ex)}
+                  >
+                    {t('common.delete')}
+                  </Button>
+                </span>
               </li>
             ),
           )}

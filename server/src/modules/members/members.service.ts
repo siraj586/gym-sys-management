@@ -468,3 +468,98 @@ export async function cancelSubscription(id: string): Promise<Subscription> {
   }
   return toSubscription(row, await gymToday());
 }
+
+/**
+ * Deletes a member for good, with everything that belongs to them: months and
+ * their payments (so the income figures drop by them), online payment
+ * attempts, check-ins, programs and progress, and their login account. The
+ * audit log keeps a note of who was deleted and how much went with them.
+ * Archiving stays the gentler choice: it hides the member but keeps history.
+ */
+export async function deleteMember(id: string, actorId: string): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    const [member] = await tx.$queryRaw<{ userId: string | null }[]>`
+      SELECT "userId" FROM "Member" WHERE id = ${id} FOR UPDATE`;
+    if (!member) throw memberNotFound();
+    const info = await tx.member.findUniqueOrThrow({
+      where: { id },
+      select: { firstName: true, lastName: true, user: { select: { role: true } } },
+    });
+
+    const subscriptionIds = (
+      await tx.subscription.findMany({ where: { memberId: id }, select: { id: true } })
+    ).map((s) => s.id);
+    const payments = await tx.payment.aggregate({
+      where: { subscriptionId: { in: subscriptionIds }, voidedAt: null },
+      _sum: { amountCents: true },
+      _count: true,
+    });
+
+    await tx.payment.deleteMany({ where: { subscriptionId: { in: subscriptionIds } } });
+    await tx.onlineCheckout.deleteMany({ where: { memberId: id } });
+    await tx.subscription.deleteMany({ where: { memberId: id } });
+    await tx.checkIn.deleteMany({ where: { memberId: id } });
+    await tx.memberProgram.deleteMany({ where: { memberId: id } });
+    await tx.performanceRecord.deleteMany({ where: { memberId: id } });
+    await tx.bodyMeasurement.deleteMany({ where: { memberId: id } });
+    await tx.progressNote.deleteMany({ where: { memberId: id } });
+    await tx.member.delete({ where: { id } });
+    // Their own client login goes too; an owner account is never deleted here.
+    if (member.userId && info.user?.role === 'CLIENT') {
+      await tx.user.delete({ where: { id: member.userId } });
+    }
+
+    await tx.auditLog.create({
+      data: {
+        actorId,
+        action: 'member.delete',
+        entity: 'Member',
+        entityId: id,
+        meta: {
+          name: `${info.firstName} ${info.lastName}`,
+          months: subscriptionIds.length,
+          payments: payments._count,
+          paidCents: payments._sum.amountCents ?? 0,
+        },
+      },
+    });
+  });
+}
+
+/**
+ * Deletes one month and its payments, e.g. a renewal saved twice by mistake.
+ * Its income disappears from the figures; the audit log keeps a note.
+ */
+export async function deleteSubscription(id: string, actorId: string): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    const sub = await tx.subscription.findUnique({
+      where: { id },
+      select: {
+        memberId: true,
+        planName: true,
+        startDate: true,
+        endDate: true,
+        payments: { select: { amountCents: true, voidedAt: true } },
+      },
+    });
+    if (!sub)
+      throw new AppError(404, 'SUBSCRIPTION_NOT_FOUND', 'This subscription does not exist.');
+    await tx.payment.deleteMany({ where: { subscriptionId: id } });
+    await tx.subscription.delete({ where: { id } });
+    await tx.auditLog.create({
+      data: {
+        actorId,
+        action: 'subscription.delete',
+        entity: 'Subscription',
+        entityId: id,
+        meta: {
+          memberId: sub.memberId,
+          planName: sub.planName,
+          startDate: fromDbDate(sub.startDate),
+          endDate: fromDbDate(sub.endDate),
+          paidCents: sub.payments.reduce((s, p) => (p.voidedAt ? s : s + p.amountCents), 0),
+        },
+      },
+    });
+  });
+}

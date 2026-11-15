@@ -19,9 +19,18 @@ import { StatusBadge } from '../../components/ui/StatusBadge';
 import { endsText, formatDate, formatMoney } from '../../lib/format';
 import { errorMessage } from '../auth/errorMessage';
 import { useSettings } from '../settings/SettingsContext';
+import { deleteMemberForGood } from './deleteMember';
 
 /** One member at a glance: who, their month, program, visits and progress. */
-export function MemberPanel({ memberId, onChanged }: { memberId: string; onChanged: () => void }) {
+export function MemberPanel({
+  memberId,
+  onChanged,
+  onDeleted,
+}: {
+  memberId: string;
+  onChanged: () => void;
+  onDeleted: () => void;
+}) {
   const { t, i18n } = useTranslation();
   const { today, currency } = useSettings();
   const member = useApi<MemberDetail>(`/members/${memberId}`);
@@ -40,6 +49,15 @@ export function MemberPanel({ memberId, onChanged }: { memberId: string; onChang
       await apiFetch(`/members/${m.id}/${archiving ? 'archive' : 'restore'}`, { method: 'POST' });
       member.reload();
       onChanged();
+    } catch (err) {
+      setActionError(errorMessage(err, t));
+    }
+  };
+
+  const remove = async () => {
+    setActionError(null);
+    try {
+      if (await deleteMemberForGood(t, m)) onDeleted();
     } catch (err) {
       setActionError(errorMessage(err, t));
     }
@@ -85,6 +103,13 @@ export function MemberPanel({ memberId, onChanged }: { memberId: string; onChang
             onClick={() => void toggleArchive()}
           >
             {t(m.archivedAt ? 'members.restore' : 'members.archive')}
+          </Button>
+          <Button
+            variant="outline"
+            className="!border-line !text-soft hover:!border-danger hover:!text-danger"
+            onClick={() => void remove()}
+          >
+            {t('common.delete')}
           </Button>
         </div>
         {actionError && (

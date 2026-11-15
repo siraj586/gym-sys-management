@@ -304,3 +304,26 @@ export async function endProgram(memberId: string): Promise<MemberProgramRespons
   }
   return getMemberProgram(memberId);
 }
+
+/**
+ * Deletes a program for good: its days, and every assignment of it (members
+ * who follow it are left without a program; past assignments disappear from
+ * their history). Archiving stays the gentler choice.
+ */
+export async function deleteProgram(id: string, actorId: string): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    const program = await tx.program.findUnique({ where: { id }, select: { name: true } });
+    if (!program) throw programNotFound();
+    const assignments = await tx.memberProgram.deleteMany({ where: { programId: id } });
+    await tx.program.delete({ where: { id } }); // days and their exercises cascade
+    await tx.auditLog.create({
+      data: {
+        actorId,
+        action: 'program.delete',
+        entity: 'Program',
+        entityId: id,
+        meta: { name: program.name, assignments: assignments.count },
+      },
+    });
+  });
+}

@@ -245,3 +245,110 @@ export async function summary(): Promise<PaymentSummary> {
     unpaidCents: unpaid.reduce((sum, u) => sum + u.balanceCents, 0),
   };
 }
+
+/**
+ * Corrects a payment: amount, method, date, reference, note. The month can
+ * still never be paid more than its price, and the date is never after today.
+ */
+export async function updatePayment(
+  id: string,
+  input: PaymentInput,
+  actorId: string,
+): Promise<Payment> {
+  const today = await gymToday();
+  if (input.paidAt > today) {
+    throw new AppError(400, 'PAYMENT_IN_FUTURE', 'A payment cannot be dated after today.');
+  }
+  return prisma.$transaction(async (tx) => {
+    const current = await tx.payment.findUnique({
+      where: { id },
+      select: { subscriptionId: true, amountCents: true, method: true, paidAt: true },
+    });
+    if (!current) throw paymentNotFound();
+    // Same lock as recording a payment: the balance check cannot be raced.
+    const [sub] = await tx.$queryRaw<{ priceCents: number }[]>`
+      SELECT "priceCents" FROM "Subscription" WHERE id = ${current.subscriptionId} FOR UPDATE`;
+    const others = await tx.payment.findMany({
+      where: { subscriptionId: current.subscriptionId, voidedAt: null, id: { not: id } },
+      select: { amountCents: true, voidedAt: true },
+    });
+    const balance = sub!.priceCents - paidCents(others);
+    if (input.amountCents > balance) {
+      throw new AppError(
+        409,
+        'PAYMENT_EXCEEDS_BALANCE',
+        'This amount is more than what is owed for this month.',
+        { balanceCents: balance },
+      );
+    }
+    const row = await tx.payment.update({
+      where: { id },
+      data: { ...input, paidAt: toDbDate(input.paidAt) },
+      select: paymentSelect,
+    });
+    await tx.auditLog.create({
+      data: {
+        actorId,
+        action: 'payment.edit',
+        entity: 'Payment',
+        entityId: id,
+        meta: {
+          before: {
+            amountCents: current.amountCents,
+            method: current.method,
+            paidAt: fromDbDate(current.paidAt),
+          },
+          after: { amountCents: input.amountCents, method: input.method, paidAt: input.paidAt },
+        },
+      },
+    });
+    return toPayment(row);
+  });
+}
+
+/**
+ * Deletes a payment for good, e.g. one saved twice: it leaves the income
+ * figures. With `withMonth`, the month it paid for goes too, when no other
+ * payment is left on it (a renewal saved twice created a second month).
+ */
+export async function deletePayment(
+  id: string,
+  actorId: string,
+  withMonth: boolean,
+): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    const payment = await tx.payment.findUnique({
+      where: { id },
+      select: { subscriptionId: true, amountCents: true, method: true, paidAt: true },
+    });
+    if (!payment) throw paymentNotFound();
+    await tx.payment.delete({ where: { id } });
+
+    let monthDeleted = false;
+    if (withMonth) {
+      const left = await tx.payment.count({ where: { subscriptionId: payment.subscriptionId } });
+      if (left === 0) {
+        await tx.subscription.delete({ where: { id: payment.subscriptionId } });
+        monthDeleted = true;
+      }
+    }
+    await tx.auditLog.create({
+      data: {
+        actorId,
+        action: 'payment.delete',
+        entity: 'Payment',
+        entityId: id,
+        meta: {
+          subscriptionId: payment.subscriptionId,
+          amountCents: payment.amountCents,
+          method: payment.method,
+          paidAt: fromDbDate(payment.paidAt),
+          monthDeleted,
+        },
+      },
+    });
+  });
+}
+
+const paymentNotFound = () =>
+  new AppError(404, 'PAYMENT_NOT_FOUND', 'This payment does not exist.');

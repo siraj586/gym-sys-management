@@ -22,6 +22,7 @@ import { useAuth } from '../../features/auth/AuthContext';
 import { errorMessage } from '../../features/auth/errorMessage';
 import { prescription, restText } from '../../features/programs/prescription';
 import { PayOnline } from '../../features/checkout/PayOnline';
+import { SubscribeCard } from '../../features/checkout/SubscribeCard';
 import { useSettings } from '../../features/settings/SettingsContext';
 import { formatDate, formatMoney, formatTime } from '../../lib/format';
 
@@ -60,6 +61,8 @@ export function PortalHomePage() {
       <h1 className="font-display text-[40px] font-bold uppercase leading-none">
         {t('portal.hi', { name: h.firstName })}
       </h1>
+      {/* No current or booked month (new sign-up, or it ran out): subscribe first. */}
+      {(h.status === 'NONE' || h.status === 'EXPIRED') && <SubscribeCard />}
       <div className="flex flex-wrap gap-[18px]">
         <SubscriptionCard sub={h.subscription} />
         <Card
@@ -98,7 +101,6 @@ function SubscriptionCard({ sub }: { sub: PortalSubscription | null }) {
     return (
       <Card className="flex-[1_1_320px]" title={t('portal.mySubscription')}>
         <p className="text-sm text-soft">{t('portal.noSubscription')}</p>
-        <PayOnline />
       </Card>
     );
   }
@@ -152,7 +154,8 @@ function SubscriptionCard({ sub }: { sub: PortalSubscription | null }) {
           : t('members.notPaidYet')}{' '}
         {t('portal.renewAtGym')}
       </p>
-      <PayOnline />
+      {/* Renewing early online; a lapsed month has the subscribe card above instead. */}
+      {covering && <PayOnline />}
     </Card>
   );
 }

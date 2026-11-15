@@ -72,6 +72,31 @@ export function PaymentsPage() {
     timeZone: 'UTC',
   }).format(new Date(`${month}-01T00:00:00Z`));
 
+  /**
+   * Deletes a payment for good (e.g. saved twice). Then offers to remove the
+   * month it paid for too: a renewal saved twice also created a second month.
+   */
+  const deletePayment = async (p: PaymentListItem) => {
+    const amount = money(p.amountCents);
+    const name = `${p.member.firstName} ${p.member.lastName}`;
+    if (!window.confirm(t('payments.confirmDeleteFor', { amount, name }))) return;
+    const withMonth = window.confirm(
+      t('payments.alsoDeleteMonth', {
+        start: formatDate(p.period.startDate, i18n.language),
+        end: formatDate(p.period.endDate, i18n.language),
+      }),
+    );
+    setActionError(null);
+    try {
+      await apiFetch(`/payments/${p.id}${withMonth ? '?withMonth=true' : ''}`, {
+        method: 'DELETE',
+      });
+      reload();
+    } catch (err) {
+      setActionError(errorMessage(err, t));
+    }
+  };
+
   const voidPayment = async (p: PaymentListItem) => {
     const reason = window.prompt(t('payments.voidReason'));
     if (reason === null) return;
@@ -256,12 +281,25 @@ export function PaymentsPage() {
                               <button
                                 type="button"
                                 onClick={() => void voidPayment(r.payment)}
-                                className="min-h-11 px-1 text-xs text-muted hover:text-danger"
+                                className="min-h-11 px-1 text-xs text-muted hover:text-warn"
                               >
                                 {t('payments.void')}
                               </button>
                             </>
                           )}
+                          <Link
+                            to={`/admin/members/${r.payment.member.id}`}
+                            className="flex min-h-11 items-center px-1 text-xs text-muted hover:text-fg"
+                          >
+                            {t('common.edit')}
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => void deletePayment(r.payment)}
+                            className="min-h-11 px-1 text-xs text-muted hover:text-danger"
+                          >
+                            {t('common.delete')}
+                          </button>
                         </span>
                       </td>
                     </tr>

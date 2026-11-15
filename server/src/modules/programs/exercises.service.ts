@@ -73,3 +73,32 @@ export async function updateExercise(id: string, input: ExerciseInput): Promise<
     .update({ where: { id }, data: input, select: exerciseSelect })
     .catch(rethrowUnique);
 }
+
+/**
+ * Deletes an exercise for good: it leaves every program that uses it, and the
+ * results recorded for it are deleted. A program day left without exercises
+ * is removed too. Retiring stays the gentler choice.
+ */
+export async function deleteExercise(id: string, actorId: string): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    const exercise = await tx.exercise.findUnique({ where: { id }, select: { name: true } });
+    if (!exercise) throw new AppError(404, 'EXERCISE_NOT_FOUND', 'This exercise does not exist.');
+    const dayIds = (
+      await tx.programExercise.findMany({ where: { exerciseId: id }, select: { dayId: true } })
+    ).map((e) => e.dayId);
+    const inPrograms = await tx.programExercise.deleteMany({ where: { exerciseId: id } });
+    const records = await tx.performanceRecord.deleteMany({ where: { exerciseId: id } });
+    // Only the days this exercise emptied.
+    await tx.programDay.deleteMany({ where: { id: { in: dayIds }, exercises: { none: {} } } });
+    await tx.exercise.delete({ where: { id } });
+    await tx.auditLog.create({
+      data: {
+        actorId,
+        action: 'exercise.delete',
+        entity: 'Exercise',
+        entityId: id,
+        meta: { name: exercise.name, inPrograms: inPrograms.count, records: records.count },
+      },
+    });
+  });
+}

@@ -1,4 +1,4 @@
-import { monthSchema, voidPaymentSchema } from '@calisthenics/shared';
+import { monthSchema, paymentInputSchema, voidPaymentSchema } from '@calisthenics/shared';
 import { Router } from 'express';
 import { z } from 'zod';
 import { gymToday } from '../../lib/settings.js';
@@ -28,4 +28,24 @@ paymentsRouter.get('/summary', async (_req, res) => {
 paymentsRouter.post('/:id/void', async (req, res) => {
   const { reason } = voidPaymentSchema.parse(req.body);
   res.json(await paymentsService.voidPayment(req.params.id, reason, currentUser(req).id));
+});
+
+/** Correct a payment (amount, method, date, reference, note). */
+paymentsRouter.put('/:id', async (req, res) => {
+  const input = paymentInputSchema.parse(req.body);
+  res.json(await paymentsService.updatePayment(req.params.id, input, currentUser(req).id));
+});
+
+const deleteQuery = z.object({
+  withMonth: z
+    .enum(['true', 'false'])
+    .optional()
+    .transform((v) => v === 'true'),
+});
+
+/** Delete a payment for good; ?withMonth=true also removes the month it alone paid for. */
+paymentsRouter.delete('/:id', async (req, res) => {
+  const { withMonth } = deleteQuery.parse(req.query);
+  await paymentsService.deletePayment(req.params.id, currentUser(req).id, withMonth);
+  res.status(204).end();
 });

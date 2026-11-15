@@ -91,7 +91,7 @@ export async function notPaid(today: string): Promise<NotPaid[]> {
   const owing: NotPaid[] = lapsed.map((m) => {
     const sub = m.subscriptions[0];
     // Their usual plan at today's price; else the cheapest plan on sale.
-    const price = sub?.plan.isActive ? sub.plan.priceCents : (cheapest?.priceCents ?? null);
+    const price = sub?.plan?.isActive ? sub.plan.priceCents : (cheapest?.priceCents ?? null);
     return {
       memberId: m.id,
       firstName: m.firstName,

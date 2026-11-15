@@ -1,6 +1,6 @@
 import { planInputSchema } from '@calisthenics/shared';
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../../middleware/auth.js';
+import { currentUser, requireAuth, requireRole } from '../../middleware/auth.js';
 import * as plansService from './plans.service.js';
 
 export const plansRouter = Router();
@@ -18,4 +18,10 @@ plansRouter.post('/', async (req, res) => {
 // PUT: the form always sends every field, so a full replace keeps the rules simple.
 plansRouter.put('/:id', async (req, res) => {
   res.json(await plansService.updatePlan(req.params.id, planInputSchema.parse(req.body)));
+});
+
+/** Owner only, like every route here: delete a plan for good. */
+plansRouter.delete('/:id', async (req, res) => {
+  await plansService.deletePlan(req.params.id, currentUser(req).id);
+  res.status(204).end();
 });

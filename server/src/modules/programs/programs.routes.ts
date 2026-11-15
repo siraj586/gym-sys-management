@@ -1,7 +1,7 @@
 import { assignProgramSchema, exerciseInputSchema, programInputSchema } from '@calisthenics/shared';
 import { Router } from 'express';
 import { z } from 'zod';
-import { requireAuth, requireRole } from '../../middleware/auth.js';
+import { currentUser, requireAuth, requireRole } from '../../middleware/auth.js';
 import * as exercisesService from './exercises.service.js';
 import * as programsService from './programs.service.js';
 
@@ -22,6 +22,11 @@ exercisesRouter.post('/', async (req, res) => {
 exercisesRouter.put('/:id', async (req, res) => {
   const input = exerciseInputSchema.parse(req.body);
   res.json(await exercisesService.updateExercise(req.params.id, input));
+});
+
+exercisesRouter.delete('/:id', async (req, res) => {
+  await exercisesService.deleteExercise(req.params.id, currentUser(req).id);
+  res.status(204).end();
 });
 
 // ---------- /api/programs ----------
@@ -61,6 +66,11 @@ const duplicateBody = z.object({ suffix: z.string().max(20).default(' (copy)') }
 programsRouter.post('/:id/duplicate', async (req, res) => {
   const { suffix } = duplicateBody.parse(req.body ?? {});
   res.status(201).json(await programsService.duplicateProgram(req.params.id, suffix));
+});
+
+programsRouter.delete('/:id', async (req, res) => {
+  await programsService.deleteProgram(req.params.id, currentUser(req).id);
+  res.status(204).end();
 });
 
 programsRouter.post('/:id/archive', async (req, res) => {

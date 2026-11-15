@@ -29,9 +29,22 @@ export function PlansPage() {
   // null: nothing open; 'new': the add form; otherwise the id of the plan being edited.
   const [editing, setEditing] = useState<string | null>(null);
 
+  const [actionError, setActionError] = useState<string | null>(null);
+
   const saved = () => {
     setEditing(null);
     reload();
+  };
+
+  const remove = async (plan: Plan) => {
+    if (!window.confirm(t('plans.confirmDelete', { name: plan.name }))) return;
+    setActionError(null);
+    try {
+      await apiFetch(`/plans/${plan.id}`, { method: 'DELETE' });
+      reload();
+    } catch (err) {
+      setActionError(errorMessage(err, t));
+    }
   };
 
   return (
@@ -43,6 +56,12 @@ export function PlansPage() {
         </div>
         {editing !== 'new' && <Button onClick={() => setEditing('new')}>{t('plans.add')}</Button>}
       </div>
+
+      {actionError && (
+        <p role="alert" className="text-sm text-danger">
+          {actionError}
+        </p>
+      )}
 
       {editing === 'new' && <PlanForm onSaved={saved} onCancel={() => setEditing(null)} />}
 
@@ -85,9 +104,18 @@ export function PlansPage() {
                     <span className="text-sm text-muted">{plan.description}</span>
                   )}
                 </div>
-                <Button variant="outline" onClick={() => setEditing(plan.id)}>
-                  {t('common.edit')}
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setEditing(plan.id)}>
+                    {t('common.edit')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="!border-line !text-soft hover:!border-danger hover:!text-danger"
+                    onClick={() => void remove(plan)}
+                  >
+                    {t('common.delete')}
+                  </Button>
+                </div>
               </li>
             ),
           )}

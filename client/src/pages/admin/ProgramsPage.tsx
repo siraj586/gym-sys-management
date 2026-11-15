@@ -137,6 +137,24 @@ function ProgramDetailView({ id, onChanged }: { id: string; onChanged: () => voi
     }
   };
 
+  const remove = async () => {
+    if (
+      !window.confirm(
+        t('programs.confirmDelete', { name: program.name, count: program.members.length }),
+      )
+    ) {
+      return;
+    }
+    setActionError(null);
+    try {
+      await apiFetch(`/programs/${program.id}`, { method: 'DELETE' });
+      onChanged();
+      void navigate('/admin/programs', { replace: true });
+    } catch (err) {
+      setActionError(errorMessage(err, t));
+    }
+  };
+
   const toggleArchive = () => {
     const archiving = !program.archivedAt;
     if (archiving && !window.confirm(t('programs.confirmArchive'))) return;
@@ -200,6 +218,14 @@ function ProgramDetailView({ id, onChanged }: { id: string; onChanged: () => voi
             onClick={toggleArchive}
           >
             {t(program.archivedAt ? 'programs.restore' : 'programs.archive')}
+          </Button>
+          <Button
+            variant="outline"
+            className="!border-line !text-soft hover:!border-danger hover:!text-danger"
+            disabled={busy}
+            onClick={() => void remove()}
+          >
+            {t('common.delete')}
           </Button>
         </div>
         {actionError && (

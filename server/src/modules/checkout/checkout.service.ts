@@ -39,20 +39,20 @@ async function memberOf(userId: string) {
 export async function options(userId: string): Promise<CheckoutOptions> {
   const provider = paymentProvider();
   const member = await memberOf(userId);
-  const plans = provider
-    ? await prisma.plan.findMany({
-        where: { isActive: true },
-        orderBy: [{ priceCents: 'asc' }, { name: 'asc' }],
-        select: {
-          id: true,
-          name: true,
-          priceCents: true,
-          durationMonths: true,
-          description: true,
-          isActive: true,
-        },
-      })
-    : [];
+  // The plans are listed even while online payment is off, so a new client sees
+  // what the membership costs; only paying needs the provider.
+  const plans = await prisma.plan.findMany({
+    where: { isActive: true },
+    orderBy: [{ priceCents: 'asc' }, { name: 'asc' }],
+    select: {
+      id: true,
+      name: true,
+      priceCents: true,
+      durationMonths: true,
+      description: true,
+      isActive: true,
+    },
+  });
   const usual = member.subscriptions[0]?.planId;
   return {
     enabled: provider !== null && plans.length > 0 && member.archivedAt === null,
@@ -205,6 +205,27 @@ export async function complete(outcome: ProviderOutcome): Promise<void> {
 
     const recordedById = checkout.member.userId;
     if (!recordedById) throw new Error(`Checkout ${checkout.id}: member has no account`);
+    if (!checkout.planId) {
+      // The plan was deleted after the payment started (deleting it is refused
+      // while a payment is pending, so this is rare): the coach records it by hand.
+      await tx.onlineCheckout.update({
+        where: { id: checkout.id },
+        data: {
+          status: 'FAILED',
+          failureReason: 'Plan deleted before the payment was confirmed',
+          completedAt: new Date(),
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: 'checkout.planDeleted',
+          entity: 'OnlineCheckout',
+          entityId: checkout.id,
+          meta: { amountCents: checkout.amountCents, providerRef: outcome.providerRef },
+        },
+      });
+      return;
+    }
     const subscriptionId = await renewInTransaction(
       tx,
       checkout.memberId,

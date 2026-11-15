@@ -7,7 +7,7 @@ export interface RenewalDue {
   endDate: string;
   /** Days until the end date: negative once it has passed (-1 = ended yesterday). */
   daysLeft: number;
-  planId: string;
+  planId: string | null;
 }
 
 /**

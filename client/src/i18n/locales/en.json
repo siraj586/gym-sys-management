@@ -9,7 +9,8 @@
     "edit": "Edit",
     "previous": "Previous",
     "next": "Next",
-    "pageOf": "Page {{page}} of {{pages}}"
+    "pageOf": "Page {{page}} of {{pages}}",
+    "delete": "Delete"
   },
   "nav": {
     "home": "Home",
@@ -112,7 +113,8 @@
     "ONLINE_PAYMENT_OFF": "Online payment is not available right now. Pay at the gym.",
     "PROVIDER_NOT_READY": "Online payment with Whish is not connected yet. Pay at the gym in the meantime.",
     "PROVIDER_ERROR": "The payment page could not be opened. Try again in a moment.",
-    "CHECKOUT_NOT_FOUND": "This payment does not exist."
+    "CHECKOUT_NOT_FOUND": "This payment does not exist.",
+    "PLAN_BEING_PAID": "A client is paying for this plan online right now. Try again in a few minutes."
   },
   "status": {
     "ACTIVE": "Active",
@@ -202,7 +204,10 @@
     "ended": "Ended {{date}}",
     "voidedShort": "Voided",
     "neverDeleted": "Payments are voided, never deleted, so the income history always adds up.",
-    "whishReference": "Whish transaction number (optional)"
+    "whishReference": "Whish transaction number (optional)",
+    "confirmDelete": "Delete the payment of {{amount}} from {{date}} for good? It leaves the income figures. This cannot be undone.",
+    "confirmDeleteFor": "Delete the payment of {{amount}} by {{name}} for good? It leaves the income figures. This cannot be undone.",
+    "alsoDeleteMonth": "Also delete the month it paid for ({{start}} to {{end}})?\n\nChoose OK if this was a renewal saved twice. The month is only deleted when no other payment is on it."
   },
   "attendance": {
     "title": "Attendance",
@@ -241,7 +246,8 @@
     "name": "Name",
     "unit": "Measured in",
     "active": "Available for new programs",
-    "retired": "retired"
+    "retired": "retired",
+    "confirmDelete": "Delete \"{{name}}\" for good? It leaves every program that uses it, and the results recorded for it are deleted. This cannot be undone. (To only hide it, edit it and turn off \"Available\".)"
   },
   "programs": {
     "title": "Training programs",
@@ -339,7 +345,9 @@
     "removeMember": "Remove",
     "confirmRemoveMember": "Take {{name}} off this program? It stays in their history.",
     "oneAtATime": "A member has one active program at a time and sees it in the client portal.",
-    "change": "Change program"
+    "change": "Change program",
+    "confirmDelete_one": "Delete the program \"{{name}}\" for good? The {{count}} member following it is left without a program. This cannot be undone. (To only hide it, use Archive.)",
+    "confirmDelete_other": "Delete the program \"{{name}}\" for good? The {{count}} members following it are left without a program. This cannot be undone. (To only hide it, use Archive.)"
   },
   "progress": {
     "open": "Progress",
@@ -472,7 +480,9 @@
     "daysUsed": "{{used}} of {{total}} days used",
     "paidOn": "Paid {{amount}} ({{method}}) on {{date}}",
     "notPaidYet": "Not paid yet.",
-    "history": "Full profile: subscription and payment history"
+    "history": "Full profile: subscription and payment history",
+    "confirmDelete": "Delete {{name}} for good? Every month, payment, check-in, program and progress entry of this member is deleted too, and the income figures drop by their payments. This cannot be undone. (To only hide them, use Archive.)\n\nType the first name ({{first}}) to confirm:",
+    "deleteNameMismatch": "The name did not match, so nothing was deleted."
   },
   "subscriptions": {
     "title": "Subscriptions",
@@ -487,7 +497,8 @@
     "confirmCancel": "Cancel the {{plan}} subscription? It stays in the history, marked as cancelled.",
     "noPlans": "There are no plans to sell yet.",
     "createPlan": "Create a plan",
-    "archivedNote": "This member is archived. Restore them to add a subscription."
+    "archivedNote": "This member is archived. Restore them to add a subscription.",
+    "confirmDelete": "Delete the {{plan}} month from {{start}} to {{end}} and its payments for good? Its income leaves the figures. This cannot be undone."
   },
   "plans": {
     "title": "Plans",
@@ -502,7 +513,8 @@
     "retired": "not offered",
     "months_one": "{{count}} month",
     "months_other": "{{count}} months",
-    "editNote": "Changes apply to new subscriptions only. Subscriptions already sold keep their name and price."
+    "editNote": "Changes apply to new subscriptions only. Subscriptions already sold keep their name and price.",
+    "confirmDelete": "Delete the plan \"{{name}}\"? It disappears from sale. Months already sold keep their name and price."
   },
   "portal": {
     "title": "Client portal",
@@ -692,5 +704,12 @@
     "expired": "This payment attempt expired.",
     "failedDetail": "No month was added. If money left your account anyway, tell the coach so they can check it. You can try again or pay at the gym.",
     "backHome": "Back to my home page"
+  },
+  "subscribe": {
+    "title": "Join the gym",
+    "subtitle": "Choose your membership and pay online",
+    "choosePlan": "Membership",
+    "pay": "Pay {{amount}} with Whish Money",
+    "notYet": "Online payment with Whish Money opens soon. Until then, pay at the gym and the coach will start your month."
   }
 }

@@ -108,8 +108,9 @@ model Subscription {
   id          String    @id @default(uuid())
   memberId    String
   member      Member    @relation(fields: [memberId], references: [id], onDelete: Restrict)
-  planId      String
-  plan        Plan      @relation(fields: [planId], references: [id], onDelete: Restrict)
+  // Null once the plan is deleted: the month keeps its own copy of the name and price.
+  planId      String?
+  plan        Plan?     @relation(fields: [planId], references: [id], onDelete: SetNull)
   // Snapshot of the plan at purchase time: editing a plan never changes sold periods.
   planName    String
   priceCents  Int
@@ -162,8 +163,8 @@ model OnlineCheckout {
   id             String         @id @default(uuid())
   memberId       String
   member         Member         @relation(fields: [memberId], references: [id], onDelete: Restrict)
-  planId         String
-  plan           Plan           @relation(fields: [planId], references: [id], onDelete: Restrict)
+  planId         String?
+  plan           Plan?          @relation(fields: [planId], references: [id], onDelete: SetNull)
   planName       String
   amountCents    Int
   currency       String
@@ -173,7 +174,7 @@ model OnlineCheckout {
   status         CheckoutStatus @default(PENDING)
   failureReason  String?
   subscriptionId String?        @unique
-  subscription   Subscription?  @relation(fields: [subscriptionId], references: [id], onDelete: Restrict)
+  subscription   Subscription?  @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
   createdAt      DateTime       @default(now())
   completedAt    DateTime?
 
