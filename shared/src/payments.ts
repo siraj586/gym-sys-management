@@ -4,7 +4,7 @@ import { isIsoDate } from './dates.js';
 // Validation messages are translation keys, as in auth.ts.
 
 /** Same values as the PaymentMethod enum in the Prisma schema. */
-export const PAYMENT_METHODS = ['CASH', 'BANK_TRANSFER'] as const;
+export const PAYMENT_METHODS = ['CASH', 'WHISH_MONEY'] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 /** Derived from non-voided payments against the subscription price; never stored. */

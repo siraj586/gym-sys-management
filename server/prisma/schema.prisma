@@ -17,7 +17,7 @@ enum Role {
 
 enum PaymentMethod {
   CASH
-  BANK_TRANSFER
+  WHISH_MONEY
 }
 
 enum ExerciseUnit {

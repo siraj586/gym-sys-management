@@ -180,7 +180,7 @@ export function RenewForm({
       )}
       <p className="text-xs text-muted">{t('payments.renewRule')}</p>
       <TextField
-        label={t(method === 'BANK_TRANSFER' ? 'payments.transferReference' : 'payments.reference')}
+        label={t(method === 'WHISH_MONEY' ? 'payments.whishReference' : 'payments.reference')}
         value={reference}
         onChange={(e) => setReference(e.target.value)}
         error={errors.reference}

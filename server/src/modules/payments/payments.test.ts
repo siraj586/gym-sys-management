@@ -96,7 +96,7 @@ describe('recording payments', () => {
       paymentStatus: 'PARTIAL',
     });
 
-    await pay(subscriptionId, { amountCents: 3000, method: 'BANK_TRANSFER' });
+    await pay(subscriptionId, { amountCents: 3000, method: 'WHISH_MONEY' });
     const sub = await subscriptionOf(memberId);
     expect(sub).toMatchObject({ paidCents: 5000, paymentStatus: 'PAID' });
     expect(sub.payments).toHaveLength(2);
@@ -191,7 +191,7 @@ describe('income and debts', () => {
   it('lists one month of payments with totals that leave out voided ones', async () => {
     const { subscriptionId } = await sale(10_000);
     await pay(subscriptionId, { amountCents: 3000 });
-    await pay(subscriptionId, { amountCents: 2000, method: 'BANK_TRANSFER' });
+    await pay(subscriptionId, { amountCents: 2000, method: 'WHISH_MONEY' });
     const mistake = await pay(subscriptionId, { amountCents: 1000 });
     await api.post(`/payments/${mistake.body.id}/void`, { reason: 'Mistake' });
     // A payment dated in another month.
@@ -205,7 +205,7 @@ describe('income and debts', () => {
     expect(res.body).toMatchObject({
       month: thisMonth(),
       totalCents: 3000,
-      byMethod: { CASH: 3000, BANK_TRANSFER: 0 },
+      byMethod: { CASH: 3000, WHISH_MONEY: 0 },
     });
     expect(res.body.payments).toHaveLength(2);
     expect(res.body.payments[0]).toMatchObject({
@@ -214,7 +214,7 @@ describe('income and debts', () => {
     });
 
     const january = await api.get('/payments?month=2020-01');
-    expect(january.body).toMatchObject({ totalCents: 2000, byMethod: { BANK_TRANSFER: 2000 } });
+    expect(january.body).toMatchObject({ totalCents: 2000, byMethod: { WHISH_MONEY: 2000 } });
 
     // Without a month, the current one.
     expect((await api.get('/payments')).body.month).toBe(thisMonth());

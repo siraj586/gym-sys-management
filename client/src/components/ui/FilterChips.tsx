@@ -37,7 +37,7 @@ export function FilterChips<T extends string>({
   );
 }
 
-/** Two or three buttons sharing one box, one selected: Cash | Bank transfer. */
+/** Two or three buttons sharing one box, one selected: Cash | Whish Money. */
 export function Segmented<T extends string>({
   options,
   value,

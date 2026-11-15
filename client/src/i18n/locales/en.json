@@ -140,7 +140,7 @@
   },
   "paymentMethod": {
     "CASH": "Cash",
-    "BANK_TRANSFER": "Bank transfer"
+    "WHISH_MONEY": "Whish Money"
   },
   "payments": {
     "title": "Payments",
@@ -172,7 +172,6 @@
     "member": "Member",
     "newMonth": "New month: {{start}} to {{end}}",
     "renewRule": "An expired member starts a new month on the payment day. A member who renews early keeps the remaining days: the new month starts on the current end date.",
-    "transferReference": "Transfer reference (optional)",
     "saveAndRenew": "Save payment and renew",
     "renewed": "Saved. {{name}}'s new month has started.",
     "exportCsv": "Export CSV",
@@ -198,7 +197,8 @@
     },
     "ended": "Ended {{date}}",
     "voidedShort": "Voided",
-    "neverDeleted": "Payments are voided, never deleted, so the income history always adds up."
+    "neverDeleted": "Payments are voided, never deleted, so the income history always adds up.",
+    "whishReference": "Whish transaction number (optional)"
   },
   "attendance": {
     "title": "Attendance",
@@ -512,14 +512,14 @@
     },
     "hi": "Hi {{name}}",
     "mySubscription": "My subscription",
-    "noSubscription": "No subscription yet. Pay your first month at the gym, in cash or by bank transfer, and it appears here.",
+    "noSubscription": "No subscription yet. Pay your first month at the gym, in cash or with Whish Money, and it appears here.",
     "daysLeft_one": "day left",
     "daysLeft_other": "days left",
     "daysSinceEnd_one": "day since it ended",
     "daysSinceEnd_other": "days since it ended",
     "daysUntilStart": "days until it starts",
     "paidOn": "Paid {{amount}} on {{date}}.",
-    "renewAtGym": "Renew at the gym in cash or by bank transfer.",
+    "renewAtGym": "Renew at the gym in cash or with Whish Money.",
     "myProgram": "My training program",
     "setByCoach": "{{name}} · set by your coach",
     "noProgram": "Your coach has not given you a program yet.",
@@ -658,7 +658,7 @@
       "handstand": "Handstand"
     },
     "plansTitle": "Membership",
-    "plansNote": "Pay in cash or by bank transfer at the gym.",
+    "plansNote": "Pay in cash at the gym or with Whish Money.",
     "membershipFor_one": "Monthly membership",
     "membershipFor_other": "{{count}}-month membership",
     "perMonths_one": "/ month",

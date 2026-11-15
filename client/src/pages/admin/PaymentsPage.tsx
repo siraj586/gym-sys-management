@@ -152,10 +152,10 @@ export function PaymentsPage() {
             note={t('payments.owingMembers', { count: owingMembers })}
           />
           <StatTile
-            label={`${t('paymentMethod.CASH')} / ${t('paymentMethod.BANK_TRANSFER')}`}
+            label={`${t('paymentMethod.CASH')} / ${t('paymentMethod.WHISH_MONEY')}`}
             value={
               payments.data
-                ? `${money(payments.data.byMethod.CASH)} / ${money(payments.data.byMethod.BANK_TRANSFER)}`
+                ? `${money(payments.data.byMethod.CASH)} / ${money(payments.data.byMethod.WHISH_MONEY)}`
                 : '–'
             }
           />

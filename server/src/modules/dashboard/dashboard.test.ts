@@ -102,7 +102,7 @@ describe('renew and record payment', () => {
     const res = await api.post(`/members/${id}/renewals`, {
       planId,
       amountCents: 2000,
-      method: 'BANK_TRANSFER',
+      method: 'WHISH_MONEY',
       paidAt: today(),
       reference: 'TR-1',
     });

@@ -140,7 +140,7 @@
   },
   "paymentMethod": {
     "CASH": "نقداً",
-    "BANK_TRANSFER": "تحويل بنكي"
+    "WHISH_MONEY": "Whish Money"
   },
   "payments": {
     "title": "المدفوعات",
@@ -172,7 +172,6 @@
     "member": "العضو",
     "newMonth": "الشهر الجديد: من {{start}} إلى {{end}}",
     "renewRule": "العضو المنتهي اشتراكه يبدأ شهراً جديداً من يوم الدفع. ومن يجدّد مبكراً يحتفظ بالأيام الباقية: يبدأ الشهر الجديد من تاريخ نهاية الحالي.",
-    "transferReference": "رقم التحويل (اختياري)",
     "saveAndRenew": "حفظ الدفعة والتجديد",
     "renewed": "تم الحفظ. بدأ الشهر الجديد لـ {{name}}.",
     "exportCsv": "تصدير CSV",
@@ -206,7 +205,8 @@
     },
     "ended": "انتهى {{date}}",
     "voidedShort": "مُبطلة",
-    "neverDeleted": "الدفعات تُبطل ولا تُحذف، فيبقى سجل الدخل صحيحاً دائماً."
+    "neverDeleted": "الدفعات تُبطل ولا تُحذف، فيبقى سجل الدخل صحيحاً دائماً.",
+    "whishReference": "رقم عملية Whish (اختياري)"
   },
   "attendance": {
     "title": "الحضور",
@@ -588,7 +588,7 @@
     },
     "hi": "أهلاً {{name}}",
     "mySubscription": "اشتراكي الشهري",
-    "noSubscription": "لا يوجد اشتراك بعد. ادفع شهرك الأول في النادي نقداً أو بتحويل بنكي، وسيظهر هنا.",
+    "noSubscription": "لا يوجد اشتراك بعد. ادفع شهرك الأول في النادي نقداً أو عبر Whish Money، وسيظهر هنا.",
     "daysLeft_zero": "آخر يوم",
     "daysLeft_one": "يوم باقٍ",
     "daysLeft_two": "يومان باقيان",
@@ -603,7 +603,7 @@
     "daysSinceEnd_other": "يوم منذ انتهائه",
     "daysUntilStart": "أيام حتى يبدأ",
     "paidOn": "دفعت {{amount}} في {{date}}.",
-    "renewAtGym": "التجديد في النادي نقداً أو بتحويل بنكي.",
+    "renewAtGym": "التجديد في النادي نقداً أو عبر Whish Money.",
     "myProgram": "برنامجي التدريبي",
     "setByCoach": "{{name}} · من إعداد مدربك",
     "noProgram": "لم يضع لك مدربك برنامجاً بعد.",
@@ -770,7 +770,7 @@
       "handstand": "الوقوف على اليدين"
     },
     "plansTitle": "الاشتراك",
-    "plansNote": "الدفع نقداً أو بتحويل بنكي في النادي.",
+    "plansNote": "الدفع نقداً في النادي أو عبر Whish Money.",
     "membershipFor_zero": "اشتراك",
     "membershipFor_one": "اشتراك شهري",
     "membershipFor_two": "اشتراك لشهرين",

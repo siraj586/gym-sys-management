@@ -81,7 +81,7 @@ async function member(
         payments: {
           create: {
             amountCents: 2000,
-            method: i % 3 === 1 ? 'BANK_TRANSFER' : 'CASH',
+            method: i % 3 === 1 ? 'WHISH_MONEY' : 'CASH',
             paidAt: date(start),
             recordedById: coach.id,
           },
