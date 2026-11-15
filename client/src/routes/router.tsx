@@ -22,6 +22,7 @@ import {
   PortalProgramPage,
   PortalProgressPage,
 } from '../pages/portal/PortalPages';
+import { CheckoutResultPage } from '../pages/portal/CheckoutResultPage';
 import { HomePage } from '../pages/public/HomePage';
 import { LoginPage } from '../pages/public/LoginPage';
 import { RequireRole } from './guards';
@@ -74,6 +75,7 @@ export const router = createBrowserRouter([
           { path: 'attendance', element: <PortalAttendancePage /> },
           { path: 'progress', element: <PortalProgressPage /> },
           { path: 'profile', element: <PortalProfilePage /> },
+          { path: 'checkout/:id', element: <CheckoutResultPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

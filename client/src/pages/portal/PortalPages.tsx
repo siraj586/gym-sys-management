@@ -21,6 +21,7 @@ import { TextField } from '../../components/ui/TextField';
 import { useAuth } from '../../features/auth/AuthContext';
 import { errorMessage } from '../../features/auth/errorMessage';
 import { prescription, restText } from '../../features/programs/prescription';
+import { PayOnline } from '../../features/checkout/PayOnline';
 import { useSettings } from '../../features/settings/SettingsContext';
 import { formatDate, formatMoney, formatTime } from '../../lib/format';
 
@@ -97,6 +98,7 @@ function SubscriptionCard({ sub }: { sub: PortalSubscription | null }) {
     return (
       <Card className="flex-[1_1_320px]" title={t('portal.mySubscription')}>
         <p className="text-sm text-soft">{t('portal.noSubscription')}</p>
+        <PayOnline />
       </Card>
     );
   }
@@ -150,6 +152,7 @@ function SubscriptionCard({ sub }: { sub: PortalSubscription | null }) {
           : t('members.notPaidYet')}{' '}
         {t('portal.renewAtGym')}
       </p>
+      <PayOnline />
     </Card>
   );
 }

@@ -315,19 +315,25 @@ async function sellInTransaction(
   memberId: string,
   planId: string,
   chooseStart: (currentEnd: string | null) => string,
+  /**
+   * A sale whose money is already taken (an online payment): it is recorded at
+   * the name and price fixed when the payment started, even if the plan has
+   * since been retired, repriced, or the member archived.
+   */
+  locked?: { planName: string; priceCents: number },
 ) {
   // Locking the member row makes two simultaneous sales for the same member
   // run one after the other, so the overlap check below cannot be raced.
   const [member] = await tx.$queryRaw<{ archivedAt: Date | null }[]>`
     SELECT "archivedAt" FROM "Member" WHERE id = ${memberId} FOR UPDATE`;
   if (!member) throw memberNotFound();
-  if (member.archivedAt) {
+  if (member.archivedAt && !locked) {
     throw new AppError(409, 'MEMBER_ARCHIVED', 'Restore this member before adding a subscription.');
   }
 
   const plan = await tx.plan.findUnique({ where: { id: planId } });
   if (!plan) throw new AppError(400, 'PLAN_NOT_FOUND', 'This plan does not exist.');
-  if (!plan.isActive) {
+  if (!plan.isActive && !locked) {
     throw new AppError(409, 'PLAN_INACTIVE', 'This plan is no longer offered.');
   }
 
@@ -361,8 +367,8 @@ async function sellInTransaction(
     data: {
       memberId,
       planId: plan.id,
-      planName: plan.name,
-      priceCents: plan.priceCents,
+      planName: locked?.planName ?? plan.name,
+      priceCents: locked?.priceCents ?? plan.priceCents,
       startDate: toDbDate(startDate),
       endDate: toDbDate(endDate),
     },
@@ -384,47 +390,65 @@ export async function renew(
     throw new AppError(400, 'PAYMENT_IN_FUTURE', 'A payment cannot be dated after today.');
   }
 
-  const subscriptionId = await prisma.$transaction(async (tx) => {
-    const sub = await sellInTransaction(tx, memberId, input.planId, (currentEnd) =>
-      renewalStart(currentEnd, input.paidAt),
-    );
-    if (input.amountCents > sub.priceCents) {
-      throw new AppError(
-        409,
-        'PAYMENT_EXCEEDS_BALANCE',
-        'This amount is more than the price of the month.',
-        { balanceCents: sub.priceCents },
-      );
-    }
-    const payment = await tx.payment.create({
-      data: {
-        subscriptionId: sub.id,
-        amountCents: input.amountCents,
-        method: input.method,
-        paidAt: toDbDate(input.paidAt),
-        reference: input.reference,
-        note: input.note,
-        recordedById,
-      },
-      select: { id: true },
-    });
-    await tx.auditLog.create({
-      data: {
-        actorId: recordedById,
-        action: 'payment.record',
-        entity: 'Payment',
-        entityId: payment.id,
-        meta: { subscriptionId: sub.id, amountCents: input.amountCents, method: input.method },
-      },
-    });
-    return sub.id;
-  });
+  const subscriptionId = await prisma.$transaction((tx) =>
+    renewInTransaction(tx, memberId, input, recordedById),
+  );
 
   const row = await prisma.subscription.findUniqueOrThrow({
     where: { id: subscriptionId },
     select: subscriptionSelect,
   });
   return toSubscription(row, today);
+}
+
+/**
+ * The work of a renewal inside a caller's transaction: the next month, its
+ * payment and the audit entry. Returns the new subscription's id.
+ */
+export async function renewInTransaction(
+  tx: Prisma.TransactionClient,
+  memberId: string,
+  input: RenewalInput,
+  recordedById: string,
+  locked?: { planName: string; priceCents: number },
+): Promise<string> {
+  const sub = await sellInTransaction(
+    tx,
+    memberId,
+    input.planId,
+    (currentEnd) => renewalStart(currentEnd, input.paidAt),
+    locked,
+  );
+  if (input.amountCents > sub.priceCents) {
+    throw new AppError(
+      409,
+      'PAYMENT_EXCEEDS_BALANCE',
+      'This amount is more than the price of the month.',
+      { balanceCents: sub.priceCents },
+    );
+  }
+  const payment = await tx.payment.create({
+    data: {
+      subscriptionId: sub.id,
+      amountCents: input.amountCents,
+      method: input.method,
+      paidAt: toDbDate(input.paidAt),
+      reference: input.reference,
+      note: input.note,
+      recordedById,
+    },
+    select: { id: true },
+  });
+  await tx.auditLog.create({
+    data: {
+      actorId: recordedById,
+      action: 'payment.record',
+      entity: 'Payment',
+      entityId: payment.id,
+      meta: { subscriptionId: sub.id, amountCents: input.amountCents, method: input.method },
+    },
+  });
+  return sub.id;
 }
 
 /** Cancelling keeps the row (and later its payments) for the record. */

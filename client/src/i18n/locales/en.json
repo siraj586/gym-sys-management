@@ -108,7 +108,11 @@
     "SUBSCRIPTION_OVERLAP": "This period overlaps the subscription from {{start}} to {{end}}. Choose a later start date, or cancel that subscription first.",
     "NO_ACTIVE_SUBSCRIPTION": "This member has no subscription for that day. Renew it first.",
     "IMAGE_NOT_FOUND": "This image does not exist any more.",
-    "MESSAGE_NOT_FOUND": "This message does not exist any more."
+    "MESSAGE_NOT_FOUND": "This message does not exist any more.",
+    "ONLINE_PAYMENT_OFF": "Online payment is not available right now. Pay at the gym.",
+    "PROVIDER_NOT_READY": "Online payment with Whish is not connected yet. Pay at the gym in the meantime.",
+    "PROVIDER_ERROR": "The payment page could not be opened. Try again in a moment.",
+    "CHECKOUT_NOT_FOUND": "This payment does not exist."
   },
   "status": {
     "ACTIVE": "Active",
@@ -671,5 +675,22 @@
     "message": "Message",
     "send": "Send message",
     "messageSent": "Thank you. Your message reached the coach."
+  },
+  "checkout": {
+    "payOnline": "Pay online with Whish",
+    "simulated": "Simulation mode: no real money moves. For testing only.",
+    "summary": "{{plan}} · {{amount}}. Your new month starts as soon as the payment is confirmed.",
+    "howItWorks": "You will continue on Whish's secure page to pay, then come back here. This app never asks for your card or account details.",
+    "continue": "Continue to payment",
+    "title": "Payment",
+    "paid": "Payment received. Thank you!",
+    "paidDetail": "{{plan}} · {{amount}}. Your month runs from {{start}} to {{end}}.",
+    "waiting": "Waiting for confirmation…",
+    "waitingDetail": "This page updates by itself as soon as Whish confirms your payment.",
+    "stillWaiting": "Whish has not confirmed the payment yet. If money left your account, the coach will see it; you can also come back to this page later.",
+    "failed": "The payment did not go through.",
+    "expired": "This payment attempt expired.",
+    "failedDetail": "No month was added. If money left your account anyway, tell the coach so they can check it. You can try again or pay at the gym.",
+    "backHome": "Back to my home page"
   }
 }

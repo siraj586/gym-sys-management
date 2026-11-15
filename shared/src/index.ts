@@ -1,5 +1,6 @@
 export * from './attendance.js';
 export * from './auth.js';
+export * from './checkout.js';
 export * from './dashboard.js';
 export * from './dates.js';
 export * from './errors.js';

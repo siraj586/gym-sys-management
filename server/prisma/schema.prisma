@@ -81,6 +81,7 @@ model Member {
   performanceRecords PerformanceRecord[]
   bodyMeasurements   BodyMeasurement[]
   progressNotes      ProgressNote[]
+  checkouts          OnlineCheckout[]
 
   @@index([lastName, firstName])
 }
@@ -98,6 +99,7 @@ model Plan {
   updatedAt      DateTime @updatedAt
 
   subscriptions Subscription[]
+  checkouts     OnlineCheckout[]
 }
 
 // One row per paid period. "Active" and "expired" are derived from endDate,
@@ -117,6 +119,7 @@ model Subscription {
   createdAt   DateTime  @default(now())
 
   payments Payment[]
+  checkout OnlineCheckout?
 
   @@index([memberId, endDate])
   @@index([endDate])
@@ -141,6 +144,40 @@ model Payment {
 
   @@index([subscriptionId])
   @@index([paidAt])
+}
+
+// ---------- Online payments ----------
+
+enum CheckoutStatus {
+  PENDING
+  PAID
+  FAILED
+  EXPIRED
+}
+
+// One attempt by a client to pay online (Whish). The price is fixed when the
+// attempt starts; when the provider confirms it, a subscription and its payment
+// are created and linked here. An attempt is completed at most once.
+model OnlineCheckout {
+  id             String         @id @default(uuid())
+  memberId       String
+  member         Member         @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  planId         String
+  plan           Plan           @relation(fields: [planId], references: [id], onDelete: Restrict)
+  planName       String
+  amountCents    Int
+  currency       String
+  provider       String
+  // The provider's id for this payment, set once the payment page is created.
+  providerRef    String?        @unique
+  status         CheckoutStatus @default(PENDING)
+  failureReason  String?
+  subscriptionId String?        @unique
+  subscription   Subscription?  @relation(fields: [subscriptionId], references: [id], onDelete: Restrict)
+  createdAt      DateTime       @default(now())
+  completedAt    DateTime?
+
+  @@index([memberId, createdAt])
 }
 
 // ---------- Attendance ----------

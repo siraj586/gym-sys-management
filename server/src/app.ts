@@ -6,6 +6,10 @@ import { env } from './config/env.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { checkInsRouter, memberAttendanceRouter } from './modules/attendance/attendance.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
+import {
+  checkoutProviderRouter,
+  portalCheckoutRouter,
+} from './modules/checkout/checkout.routes.js';
 import { dashboardRouter } from './modules/dashboard/dashboard.routes.js';
 import { healthRouter } from './modules/health/health.routes.js';
 import { membersRouter, subscriptionsRouter } from './modules/members/members.routes.js';
@@ -29,6 +33,9 @@ export const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
+// The payment provider's notifications are read as raw bytes (their signature
+// covers them), so that router comes before the JSON parser.
+app.use('/api/checkout', checkoutProviderRouter);
 app.use(express.json({ limit: '100kb' }));
 app.use(cookieParser());
 
@@ -38,6 +45,7 @@ app.use('/api/public', publicRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/gallery', galleryRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/portal/checkout', portalCheckoutRouter);
 app.use('/api/portal', portalRouter);
 app.use('/api/messages', messagesRouter);
 app.use('/api/plans', plansRouter);
