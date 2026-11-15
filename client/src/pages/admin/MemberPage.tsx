@@ -19,6 +19,7 @@ import { TextField } from '../../components/ui/TextField';
 import { MemberAttendanceCard } from '../../features/attendance/MemberAttendanceCard';
 import { errorMessage } from '../../features/auth/errorMessage';
 import { Owes, SubscriptionPayments } from '../../features/payments/SubscriptionPayments';
+import { MemberProgramCard } from '../../features/programs/MemberProgramCard';
 import { useSettings } from '../../features/settings/SettingsContext';
 import { formatDate, formatMoney } from '../../lib/format';
 
@@ -174,6 +175,8 @@ function MemberProfile({ member, reload }: { member: MemberDetail; reload: () =>
           )}
         </section>
       </div>
+
+      <MemberProgramCard memberId={member.id} archived={member.archivedAt !== null} />
     </div>
   );
 }

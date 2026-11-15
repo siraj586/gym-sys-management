@@ -10,6 +10,11 @@ import { healthRouter } from './modules/health/health.routes.js';
 import { membersRouter, subscriptionsRouter } from './modules/members/members.routes.js';
 import { paymentsRouter } from './modules/payments/payments.routes.js';
 import { plansRouter } from './modules/plans/plans.routes.js';
+import {
+  exercisesRouter,
+  memberProgramRouter,
+  programsRouter,
+} from './modules/programs/programs.routes.js';
 import { settingsRouter } from './modules/settings/settings.routes.js';
 
 export const app = express();
@@ -24,10 +29,13 @@ app.use('/api/auth', authRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/plans', plansRouter);
 app.use('/api/members/:id/attendance', memberAttendanceRouter);
+app.use('/api/members/:id/program', memberProgramRouter);
 app.use('/api/members', membersRouter);
 app.use('/api/subscriptions', subscriptionsRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/check-ins', checkInsRouter);
+app.use('/api/exercises', exercisesRouter);
+app.use('/api/programs', programsRouter);
 
 app.use(notFound);
 app.use(errorHandler);

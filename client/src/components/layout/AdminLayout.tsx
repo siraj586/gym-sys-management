@@ -24,6 +24,9 @@ export function AdminLayout() {
         <NavLink to="/admin/members" className={tab}>
           {t('admin.nav.members')}
         </NavLink>
+        <NavLink to="/admin/programs" className={tab}>
+          {t('admin.nav.programs')}
+        </NavLink>
         <NavLink to="/admin/payments" className={tab}>
           {t('admin.nav.payments')}
         </NavLink>

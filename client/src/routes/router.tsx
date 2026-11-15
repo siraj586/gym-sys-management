@@ -3,6 +3,10 @@ import { AdminLayout } from '../components/layout/AdminLayout';
 import { SiteLayout } from '../components/layout/SiteLayout';
 import { AdminHomePage } from '../pages/admin/AdminHomePage';
 import { AttendancePage } from '../pages/admin/AttendancePage';
+import { ExercisesPage } from '../pages/admin/ExercisesPage';
+import { ProgramEditorPage } from '../pages/admin/ProgramEditorPage';
+import { ProgramPage } from '../pages/admin/ProgramPage';
+import { ProgramsPage } from '../pages/admin/ProgramsPage';
 import { MemberFormPage } from '../pages/admin/MemberFormPage';
 import { MemberPage } from '../pages/admin/MemberPage';
 import { MembersPage } from '../pages/admin/MembersPage';
@@ -38,6 +42,11 @@ export const router = createBrowserRouter([
               { path: 'members/:id', element: <MemberPage /> },
               { path: 'members/:id/edit', element: <MemberFormPage /> },
               { path: 'plans', element: <PlansPage /> },
+              { path: 'programs', element: <ProgramsPage /> },
+              { path: 'programs/new', element: <ProgramEditorPage /> },
+              { path: 'programs/:id', element: <ProgramPage /> },
+              { path: 'programs/:id/edit', element: <ProgramEditorPage /> },
+              { path: 'exercises', element: <ExercisesPage /> },
               { path: 'payments', element: <PaymentsPage /> },
               { path: '*', element: <NotFoundPage /> },
             ],
