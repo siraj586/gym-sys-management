@@ -73,6 +73,8 @@ export interface Payment {
 export interface PaymentListItem extends Payment {
   member: { id: string; firstName: string; lastName: string };
   planName: string;
+  /** The month the payment is for. */
+  period: { startDate: string; endDate: string };
 }
 
 export interface PaymentListResponse {

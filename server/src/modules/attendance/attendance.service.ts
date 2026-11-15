@@ -14,18 +14,32 @@ const checkInSelect = {
   id: true,
   date: true,
   checkedInAt: true,
-  member: { select: { id: true, firstName: true, lastName: true } },
+  member: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      // Their last paid day, shown beside the check-in ("ends in 2 days").
+      subscriptions: {
+        where: { cancelledAt: null },
+        orderBy: { endDate: 'desc' },
+        take: 1,
+        select: { endDate: true },
+      },
+    },
+  },
   recordedBy: { select: { email: true } },
 } satisfies Prisma.CheckInSelect;
 
 type CheckInRow = Prisma.CheckInGetPayload<{ select: typeof checkInSelect }>;
 
 function toCheckIn(row: CheckInRow): CheckIn {
+  const { subscriptions, ...member } = row.member;
   return {
     id: row.id,
     date: fromDbDate(row.date),
     checkedInAt: row.checkedInAt.toISOString(),
-    member: row.member,
+    member: { ...member, paidThrough: subscriptions[0] ? fromDbDate(subscriptions[0].endDate) : null },
     recordedBy: row.recordedBy.email,
   };
 }

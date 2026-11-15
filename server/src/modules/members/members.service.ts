@@ -1,5 +1,6 @@
 import {
   addDays,
+  currentPeriod,
   EXPIRING_SOON_DAYS,
   MEMBER_STATUSES,
   memberStatus,
@@ -93,7 +94,20 @@ function toSummary(row: SummaryRow, today: string): MemberSummary {
       null,
     ),
     balanceCents: live.reduce((sum, s) => sum + Math.max(0, s.priceCents - s.paidCents), 0),
+    current: pickCurrent(subscriptions, today),
   };
+}
+
+function pickCurrent(subscriptions: Subscription[], today: string): MemberSummary['current'] {
+  const shown = currentPeriod(subscriptions, today);
+  return shown
+    ? {
+        planName: shown.planName,
+        priceCents: shown.priceCents,
+        startDate: shown.startDate,
+        endDate: shown.endDate,
+      }
+    : null;
 }
 
 const detailSelect = {

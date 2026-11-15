@@ -1,5 +1,4 @@
 import {
-  addDays,
   isIsoDate,
   subscriptionEndDate,
   type MemberDetail,
@@ -255,8 +254,9 @@ function NewSubscription({ member, onSold }: { member: MemberDetail; onSold: () 
   const { data } = useApi<{ plans: Plan[] }>('/plans');
   const plans = data?.plans.filter((p) => p.isActive) ?? [];
 
+  // Renewing early keeps the days left: the next month starts on the current end date.
   const suggestedStart =
-    member.paidThrough && member.paidThrough >= today ? addDays(member.paidThrough, 1) : today;
+    member.paidThrough && member.paidThrough >= today ? member.paidThrough : today;
 
   const [planId, setPlanId] = useState('');
   const [startDate, setStartDate] = useState(suggestedStart);

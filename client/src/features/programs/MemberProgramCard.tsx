@@ -42,7 +42,7 @@ export function MemberProgramCard({ memberId, archived }: { memberId: string; ar
   };
 
   return (
-    <section className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-5">
+    <section id="program" className="flex scroll-mt-6 flex-col gap-4 rounded-lg border border-line bg-surface p-5">
       <h2 className="font-display text-2xl font-bold uppercase">{t('programs.memberTitle')}</h2>
 
       {assignment.error ? (

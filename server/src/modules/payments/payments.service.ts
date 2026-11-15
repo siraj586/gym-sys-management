@@ -149,6 +149,8 @@ export async function listPayments(month: string): Promise<PaymentListResponse> 
       subscription: {
         select: {
           planName: true,
+          startDate: true,
+          endDate: true,
           member: { select: { id: true, firstName: true, lastName: true } },
         },
       },
@@ -170,6 +172,10 @@ export async function listPayments(month: string): Promise<PaymentListResponse> 
       ...toPayment(row),
       member: subscription.member,
       planName: subscription.planName,
+      period: {
+        startDate: fromDbDate(subscription.startDate),
+        endDate: fromDbDate(subscription.endDate),
+      },
     })),
     totalCents: paidCents(rows),
     byMethod,

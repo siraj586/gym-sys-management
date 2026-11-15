@@ -19,7 +19,7 @@ export interface CheckIn {
   date: string;
   /** The exact moment it was recorded (ISO timestamp). */
   checkedInAt: string;
-  member: { id: string; firstName: string; lastName: string };
+  member: { id: string; firstName: string; lastName: string; paidThrough: string | null };
   recordedBy: string;
 }
 

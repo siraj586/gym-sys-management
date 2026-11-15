@@ -187,6 +187,22 @@ export interface MemberSummary {
   paidThrough: string | null;
   /** Still owed across live subscriptions (0 when everything is paid). */
   balanceCents: number;
+  /** The month that matters now: covering today, else the next one booked, else the last one. */
+  current: { planName: string; priceCents: number; startDate: string; endDate: string } | null;
+}
+
+/** Picks the month that matters now out of a member's live subscriptions. */
+export function currentPeriod<T extends { startDate: string; endDate: string; cancelledAt: string | null }>(
+  subs: T[],
+  today: string,
+): T | null {
+  const live = subs.filter((s) => !s.cancelledAt).sort((a, b) => a.startDate.localeCompare(b.startDate));
+  return (
+    live.find((s) => s.startDate <= today && s.endDate >= today) ??
+    live.find((s) => s.startDate > today) ??
+    live[live.length - 1] ??
+    null
+  );
 }
 
 export interface MemberDetail extends MemberSummary {
