@@ -11,10 +11,10 @@ interface ApiState<T> {
 
 /**
  * GET `path` and keep the result. Changing `path` fetches again; a response
- * for an older path that arrives late is ignored.
+ * for an older path that arrives late is ignored. A null path fetches nothing.
  */
-export function useApi<T>(path: string): ApiState<T> {
-  const [result, setResult] = useState<{ path: string; data: T | null; error: unknown }>({
+export function useApi<T>(path: string | null): ApiState<T> {
+  const [result, setResult] = useState<{ path: string | null; data: T | null; error: unknown }>({
     path: '',
     data: null,
     error: null,
@@ -22,6 +22,7 @@ export function useApi<T>(path: string): ApiState<T> {
   const [version, setVersion] = useState(0);
 
   useEffect(() => {
+    if (path === null) return;
     let current = true;
     apiFetch<T>(path).then(
       (data) => current && setResult({ path, data, error: null }),
@@ -33,8 +34,9 @@ export function useApi<T>(path: string): ApiState<T> {
   }, [path, version]);
 
   const reload = useCallback(() => setVersion((v) => v + 1), []);
-  const fresh = result.path === path;
 
+  if (path === null) return { data: null, error: null, loading: false, reload };
+  const fresh = result.path === path;
   return {
     // Keep showing the previous data while the next page or filter loads.
     data: result.data,

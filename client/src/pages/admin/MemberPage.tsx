@@ -16,6 +16,7 @@ import { ButtonLink } from '../../components/ui/ButtonLink';
 import { SelectField } from '../../components/ui/SelectField';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { TextField } from '../../components/ui/TextField';
+import { MemberAttendanceCard } from '../../features/attendance/MemberAttendanceCard';
 import { errorMessage } from '../../features/auth/errorMessage';
 import { Owes, SubscriptionPayments } from '../../features/payments/SubscriptionPayments';
 import { useSettings } from '../../features/settings/SettingsContext';
@@ -114,34 +115,39 @@ function MemberProfile({ member, reload }: { member: MemberDetail; reload: () =>
         </p>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
-        <section className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-5">
-          <h2 className="font-display text-2xl font-bold uppercase">{t('members.details')}</h2>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-            <Detail label={t('auth.phone')}>
-              <span dir="ltr">{member.phone}</span>
-            </Detail>
-            <Detail label={t('auth.email')}>{member.email}</Detail>
-            <Detail label={t('members.dateOfBirth')}>
-              {member.dateOfBirth && date(member.dateOfBirth)}
-            </Detail>
-            <Detail label={t('members.emergencyContact')}>{member.emergencyContact}</Detail>
-            <Detail label={t('members.account')}>
-              {t(member.hasAccount ? 'members.hasAccount' : 'members.noAccount')}
-            </Detail>
-            <Detail label={t('members.memberSince')}>{date(member.createdAt.slice(0, 10))}</Detail>
-          </dl>
-          {(member.healthNotes || member.coachNotes) && (
-            <div className="flex flex-col gap-3 border-t border-line pt-4">
-              {member.healthNotes && (
-                <Note label={t('members.healthNotes')}>{member.healthNotes}</Note>
-              )}
-              {member.coachNotes && (
-                <Note label={t('members.coachNotes')}>{member.coachNotes}</Note>
-              )}
-            </div>
-          )}
-        </section>
+      <div className="grid items-start gap-6 lg:grid-cols-[1fr_1.4fr]">
+        <div className="flex flex-col gap-6">
+          <section className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-5">
+            <h2 className="font-display text-2xl font-bold uppercase">{t('members.details')}</h2>
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+              <Detail label={t('auth.phone')}>
+                <span dir="ltr">{member.phone}</span>
+              </Detail>
+              <Detail label={t('auth.email')}>{member.email}</Detail>
+              <Detail label={t('members.dateOfBirth')}>
+                {member.dateOfBirth && date(member.dateOfBirth)}
+              </Detail>
+              <Detail label={t('members.emergencyContact')}>{member.emergencyContact}</Detail>
+              <Detail label={t('members.account')}>
+                {t(member.hasAccount ? 'members.hasAccount' : 'members.noAccount')}
+              </Detail>
+              <Detail label={t('members.memberSince')}>
+                {date(member.createdAt.slice(0, 10))}
+              </Detail>
+            </dl>
+            {(member.healthNotes || member.coachNotes) && (
+              <div className="flex flex-col gap-3 border-t border-line pt-4">
+                {member.healthNotes && (
+                  <Note label={t('members.healthNotes')}>{member.healthNotes}</Note>
+                )}
+                {member.coachNotes && (
+                  <Note label={t('members.coachNotes')}>{member.coachNotes}</Note>
+                )}
+              </div>
+            )}
+          </section>
+          <MemberAttendanceCard memberId={member.id} />
+        </div>
 
         <section className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-5">
           <h2 className="font-display text-2xl font-bold uppercase">{t('subscriptions.title')}</h2>

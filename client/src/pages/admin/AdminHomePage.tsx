@@ -1,4 +1,9 @@
-import type { MemberStatus, MemberStatusCounts, PaymentSummary } from '@calisthenics/shared';
+import type {
+  CheckInListResponse,
+  MemberStatus,
+  MemberStatusCounts,
+  PaymentSummary,
+} from '@calisthenics/shared';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useApi } from '../../api/useApi';
@@ -16,6 +21,20 @@ const CARDS: { status: MemberStatus; accent: string }[] = [
   { status: 'NONE', accent: 'text-muted' },
 ];
 
+function TodayCheckIns() {
+  const { t } = useTranslation();
+  const { data } = useApi<CheckInListResponse>('/check-ins');
+  return (
+    <Link
+      to="/admin/attendance"
+      className="flex flex-col gap-1 rounded-lg border border-line bg-surface p-4 transition-colors hover:border-lime"
+    >
+      <span className="font-display text-4xl font-bold">{data ? data.checkIns.length : '–'}</span>
+      <span className="text-sm text-soft">{t('overview.checkedInToday')}</span>
+    </Link>
+  );
+}
+
 /** This month's income and what members still owe, both linking to the payments page. */
 function MoneySummary() {
   const { t, i18n } = useTranslation();
@@ -26,7 +45,8 @@ function MoneySummary() {
   if (error) return <p className="text-danger">{errorMessage(error, t)}</p>;
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-3 sm:grid-cols-3">
+      <TodayCheckIns />
       <Link
         to="/admin/payments"
         className="flex flex-col gap-1 rounded-lg border border-line bg-surface p-4 transition-colors hover:border-lime"

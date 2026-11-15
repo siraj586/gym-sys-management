@@ -1,3 +1,4 @@
+export * from './attendance.js';
 export * from './auth.js';
 export * from './dates.js';
 export * from './errors.js';

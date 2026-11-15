@@ -10,6 +10,15 @@ export function formatDate(isoDate: string, language: string): string {
   }).format(new Date(`${isoDate}T00:00:00Z`));
 }
 
+/** Clock time of an instant, as seen in the gym's timezone (not the viewer's). */
+export function formatTime(isoTimestamp: string, language: string, timeZone: string): string {
+  return new Intl.DateTimeFormat(language, {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone,
+  }).format(new Date(isoTimestamp));
+}
+
 export function formatMoney(cents: number, currency: string, language: string): string {
   return new Intl.NumberFormat(language, { style: 'currency', currency }).format(cents / 100);
 }

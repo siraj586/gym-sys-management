@@ -56,7 +56,10 @@
     "FORBIDDEN": "You do not have access to this.",
     "NOT_FOUND": "This page or record does not exist.",
     "MEMBER_NOT_FOUND": "This member does not exist.",
-    "MEMBER_ARCHIVED": "Restore this member before adding a subscription.",
+    "MEMBER_ARCHIVED": "This member is archived. Restore them first.",
+    "CHECK_IN_IN_FUTURE": "A check-in cannot be dated after today.",
+    "ALREADY_CHECKED_IN": "This member is already checked in on this day.",
+    "CHECK_IN_NOT_FOUND": "This check-in does not exist any more.",
     "PLAN_NOT_FOUND": "This plan does not exist.",
     "PLAN_INACTIVE": "This plan is no longer offered.",
     "SUBSCRIPTION_NOT_FOUND": "This subscription does not exist.",
@@ -80,6 +83,7 @@
     "title": "Coach dashboard",
     "nav": {
       "overview": "Overview",
+      "attendance": "Attendance",
       "members": "Members",
       "payments": "Payments",
       "plans": "Plans"
@@ -112,7 +116,28 @@
     "voidReason": "Why is this payment voided?",
     "confirmVoid": "Void payment"
   },
+  "attendance": {
+    "title": "Attendance",
+    "day": "Day",
+    "pastDay": "Filling in {{date}}",
+    "search": "Find a member to check in",
+    "searchPlaceholder": "Type a name or phone number",
+    "checkIn": "Check in",
+    "checkedIn": "✓ Checked in",
+    "confirmNotCovered": "{{name}}'s subscription status is \"{{status}}\". Check them in anyway?",
+    "cameCount_one": "{{count}} came",
+    "cameCount_other": "{{count}} came",
+    "nobodyYet": "Nobody checked in on this day yet.",
+    "undo": "Undo",
+    "confirmUndo": "Remove the check-in of {{name}}? Use this only to correct a mistake.",
+    "lastVisit_one": "Last visit {{date}} · {{count}} visit in total",
+    "lastVisit_other": "Last visit {{date}} · {{count}} visits in total",
+    "neverCame": "No visits recorded yet.",
+    "visits_one": "{{count}} visit",
+    "visits_other": "{{count}} visits"
+  },
   "overview": {
+    "checkedInToday": "Checked in today",
     "monthIncome": "Received this month",
     "unpaid_one": "Owed on {{count}} subscription",
     "unpaid_other": "Owed on {{count}} subscriptions",

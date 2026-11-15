@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router';
 import { AdminLayout } from '../components/layout/AdminLayout';
 import { SiteLayout } from '../components/layout/SiteLayout';
 import { AdminHomePage } from '../pages/admin/AdminHomePage';
+import { AttendancePage } from '../pages/admin/AttendancePage';
 import { MemberFormPage } from '../pages/admin/MemberFormPage';
 import { MemberPage } from '../pages/admin/MemberPage';
 import { MembersPage } from '../pages/admin/MembersPage';
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
             element: <AdminLayout />,
             children: [
               { index: true, element: <AdminHomePage /> },
+              { path: 'attendance', element: <AttendancePage /> },
               { path: 'members', element: <MembersPage /> },
               { path: 'members/new', element: <MemberFormPage /> },
               { path: 'members/:id', element: <MemberPage /> },
