@@ -5,4 +5,5 @@ export * from './errors.js';
 export * from './membership.js';
 export * from './payments.js';
 export * from './programs.js';
+export * from './progress.js';
 export * from './roles.js';

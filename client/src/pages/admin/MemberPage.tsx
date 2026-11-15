@@ -101,6 +101,7 @@ function MemberProfile({ member, reload }: { member: MemberDetail; reload: () =>
           </div>
         </div>
         <div className="flex flex-wrap gap-3">
+          <ButtonLink to={`/admin/members/${member.id}/progress`}>{t('progress.open')}</ButtonLink>
           <ButtonLink variant="outline" to={`/admin/members/${member.id}/edit`}>
             {t('common.edit')}
           </ButtonLink>

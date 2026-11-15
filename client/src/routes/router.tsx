@@ -7,6 +7,7 @@ import { ExercisesPage } from '../pages/admin/ExercisesPage';
 import { ProgramEditorPage } from '../pages/admin/ProgramEditorPage';
 import { ProgramPage } from '../pages/admin/ProgramPage';
 import { ProgramsPage } from '../pages/admin/ProgramsPage';
+import { ProgressPage } from '../pages/admin/ProgressPage';
 import { MemberFormPage } from '../pages/admin/MemberFormPage';
 import { MemberPage } from '../pages/admin/MemberPage';
 import { MembersPage } from '../pages/admin/MembersPage';
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
               { path: 'members/new', element: <MemberFormPage /> },
               { path: 'members/:id', element: <MemberPage /> },
               { path: 'members/:id/edit', element: <MemberFormPage /> },
+              { path: 'members/:id/progress', element: <ProgressPage /> },
               { path: 'plans', element: <PlansPage /> },
               { path: 'programs', element: <ProgramsPage /> },
               { path: 'programs/new', element: <ProgramEditorPage /> },

@@ -48,7 +48,10 @@
     "rest": "Rest: 0 to 600 seconds, or leave it empty.",
     "dayNeedsExercise": "Add at least one exercise to this day.",
     "programNeedsDay": "A program needs at least one day.",
-    "tooMany": "There are too many items here."
+    "tooMany": "There are too many items here.",
+    "value": "Enter a number greater than zero.",
+    "measurement": "This value is outside the usual range. Check it.",
+    "measurementEmpty": "Enter at least one measurement."
   },
   "errors": {
     "INVALID_CREDENTIALS": "Email or password is incorrect.",
@@ -74,6 +77,9 @@
     "PROGRAM_ARCHIVED": "This program is archived. Restore it before assigning it.",
     "PROGRAM_ALREADY_ASSIGNED": "The member already follows this program.",
     "NO_CURRENT_PROGRAM": "This member has no current program.",
+    "VALUE_NOT_WHOLE": "Reps and seconds are whole numbers.",
+    "DATE_IN_FUTURE": "This date is after today.",
+    "ENTRY_NOT_FOUND": "This entry does not exist any more.",
     "PLAN_NOT_FOUND": "This plan does not exist.",
     "PLAN_INACTIVE": "This plan is no longer offered.",
     "SUBSCRIPTION_NOT_FOUND": "This subscription does not exist.",
@@ -233,6 +239,60 @@
     "showDays_one": "Show the {{count}} day",
     "showDays_other": "Show the {{count}} days",
     "history": "Earlier programs"
+  },
+  "progress": {
+    "open": "Progress",
+    "backToMember": "← {{name}}'s profile",
+    "title": "Progress · {{name}}",
+    "tabs": { "performance": "Results", "body": "Body", "notes": "Notes" },
+    "addResult": "Record a result",
+    "value": "Result",
+    "date": "Date",
+    "saveResult": "Save result",
+    "addExercisesFirst": "Add exercises to the library first",
+    "noResults": "No results recorded yet. Record a test such as max push-ups to start tracking.",
+    "latest": "Latest",
+    "best": "Best",
+    "sinceFirst": "Since first",
+    "chartLabel": "{{name}} over time",
+    "oneResult": "One result so far. The chart appears from the second one.",
+    "allResults_one": "Show the {{count}} result",
+    "allResults_other": "Show all {{count}} results",
+    "remove": "Remove",
+    "confirmRemove": "Remove this entry? Use this only to correct a mistake.",
+    "addMeasurement": "Record measurements",
+    "measurementHint": "Fill in only what you measured today.",
+    "saveMeasurement": "Save measurements",
+    "chooseMeasure": "Measurement to chart",
+    "noMeasurements": "No measurements yet.",
+    "measure": {
+      "weightKg": "Weight",
+      "bodyFatPct": "Body fat",
+      "chestCm": "Chest",
+      "waistCm": "Waist",
+      "armCm": "Arm",
+      "thighCm": "Thigh"
+    },
+    "measureWithUnit": {
+      "weightKg": "Weight (kg)",
+      "bodyFatPct": "Body fat (%)",
+      "chestCm": "Chest (cm)",
+      "waistCm": "Waist (cm)",
+      "armCm": "Arm (cm)",
+      "thighCm": "Thigh (cm)"
+    },
+    "measureValue": {
+      "weightKg": "{{value}} kg",
+      "bodyFatPct": "{{value}} %",
+      "chestCm": "{{value}} cm",
+      "waistCm": "{{value}} cm",
+      "armCm": "{{value}} cm",
+      "thighCm": "{{value}} cm"
+    },
+    "newNote": "New note",
+    "noteHint": "A dated note on how training is going.",
+    "saveNote": "Save note",
+    "noNotes": "No notes yet."
   },
   "overview": {
     "checkedInToday": "Checked in today",

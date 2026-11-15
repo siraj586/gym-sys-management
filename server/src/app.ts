@@ -15,6 +15,7 @@ import {
   memberProgramRouter,
   programsRouter,
 } from './modules/programs/programs.routes.js';
+import { memberProgressRouter, progressEntriesRouter } from './modules/progress/progress.routes.js';
 import { settingsRouter } from './modules/settings/settings.routes.js';
 
 export const app = express();
@@ -30,12 +31,14 @@ app.use('/api/settings', settingsRouter);
 app.use('/api/plans', plansRouter);
 app.use('/api/members/:id/attendance', memberAttendanceRouter);
 app.use('/api/members/:id/program', memberProgramRouter);
+app.use('/api/members/:id/progress', memberProgressRouter);
 app.use('/api/members', membersRouter);
 app.use('/api/subscriptions', subscriptionsRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/check-ins', checkInsRouter);
 app.use('/api/exercises', exercisesRouter);
 app.use('/api/programs', programsRouter);
+app.use('/api/progress', progressEntriesRouter);
 
 app.use(notFound);
 app.use(errorHandler);
