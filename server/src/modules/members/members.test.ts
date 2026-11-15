@@ -192,7 +192,7 @@ describe('subscriptions', () => {
     expect(member.body.paidThrough).toBe(res.body.endDate);
   });
 
-  it('refuses a period that overlaps a live subscription', async () => {
+  it('refuses a period that overlaps a live subscription, but lets the next month touch it', async () => {
     const memberId = await createMember();
     const planId = await createPlan();
     const first = await api.post(`/members/${memberId}/subscriptions`, {
@@ -202,15 +202,15 @@ describe('subscriptions', () => {
 
     const overlap = await api.post(`/members/${memberId}/subscriptions`, {
       planId,
-      startDate: first.body.endDate,
+      startDate: addDays(first.body.endDate as string, -1),
     });
     expect(overlap.status).toBe(409);
     expect(overlap.body.error.code).toBe('SUBSCRIPTION_OVERLAP');
 
-    // The day after the last paid day is free.
+    // Paid 3 Oct, ends 3 Nov: the next month starts on 3 Nov.
     const next = await api.post(`/members/${memberId}/subscriptions`, {
       planId,
-      startDate: addDays(first.body.endDate as string, 1),
+      startDate: first.body.endDate,
     });
     expect(next.status).toBe(201);
   });

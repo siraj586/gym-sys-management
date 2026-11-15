@@ -164,6 +164,38 @@ export async function updateProgram(id: string, input: ProgramInput): Promise<Pr
   });
 }
 
+/** A copy of a program with all its days, named "<name> (copy)", assigned to nobody. */
+export async function duplicateProgram(id: string, copySuffix: string): Promise<ProgramDetail> {
+  const source = await getProgram(id);
+  return prisma.$transaction(async (tx) => {
+    const { id: copyId } = await tx.program.create({
+      data: {
+        name: `${source.name}${copySuffix}`.slice(0, 80),
+        level: source.level,
+        goal: source.goal,
+        days: {
+          create: source.days.map((day, dayIndex) => ({
+            position: dayIndex,
+            title: day.title,
+            exercises: {
+              create: day.exercises.map((e, index) => ({
+                exerciseId: e.exerciseId,
+                sets: e.sets,
+                target: e.target,
+                restSeconds: e.restSeconds,
+                note: e.note,
+                position: index,
+              })),
+            },
+          })),
+        },
+      },
+      select: { id: true },
+    });
+    return getProgram(copyId, tx);
+  });
+}
+
 /** Archived programs cannot be assigned anew; members already on one keep it. */
 export async function setArchived(id: string, archived: boolean): Promise<ProgramDetail> {
   const { count } = await prisma.program.updateMany({

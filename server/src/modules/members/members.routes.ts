@@ -2,6 +2,7 @@ import {
   memberInputSchema,
   memberListQuerySchema,
   paymentInputSchema,
+  renewalInputSchema,
   subscriptionInputSchema,
 } from '@calisthenics/shared';
 import { Router } from 'express';
@@ -40,6 +41,11 @@ membersRouter.post('/:id/archive', async (req, res) => {
 
 membersRouter.post('/:id/restore', async (req, res) => {
   res.json(await membersService.setArchived(req.params.id, false));
+});
+
+membersRouter.post('/:id/renewals', async (req, res) => {
+  const input = renewalInputSchema.parse(req.body);
+  res.status(201).json(await membersService.renew(req.params.id, input, currentUser(req).id));
 });
 
 membersRouter.post('/:id/subscriptions', async (req, res) => {

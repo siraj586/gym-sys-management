@@ -6,17 +6,24 @@ import { env } from './config/env.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { checkInsRouter, memberAttendanceRouter } from './modules/attendance/attendance.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
+import { dashboardRouter } from './modules/dashboard/dashboard.routes.js';
 import { healthRouter } from './modules/health/health.routes.js';
 import { membersRouter, subscriptionsRouter } from './modules/members/members.routes.js';
 import { paymentsRouter } from './modules/payments/payments.routes.js';
 import { plansRouter } from './modules/plans/plans.routes.js';
+import { portalRouter } from './modules/portal/portal.routes.js';
 import {
   exercisesRouter,
   memberProgramRouter,
   programsRouter,
 } from './modules/programs/programs.routes.js';
 import { memberProgressRouter, progressEntriesRouter } from './modules/progress/progress.routes.js';
-import { settingsRouter } from './modules/settings/settings.routes.js';
+import {
+  galleryRouter,
+  messagesRouter,
+  publicRouter,
+  settingsRouter,
+} from './modules/site/site.routes.js';
 
 export const app = express();
 
@@ -27,7 +34,12 @@ app.use(cookieParser());
 
 app.use('/api/health', healthRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/public', publicRouter);
 app.use('/api/settings', settingsRouter);
+app.use('/api/gallery', galleryRouter);
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/portal', portalRouter);
+app.use('/api/messages', messagesRouter);
 app.use('/api/plans', plansRouter);
 app.use('/api/members/:id/attendance', memberAttendanceRouter);
 app.use('/api/members/:id/program', memberProgramRouter);

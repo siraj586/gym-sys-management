@@ -270,10 +270,17 @@ model ProgressNote {
 
 // Single row (id = 1).
 model Settings {
-  id           Int    @id @default(1)
+  id           Int     @id @default(1)
   businessName String
-  timezone     String @default("UTC")
-  currency     String @default("USD")
+  timezone     String  @default("UTC")
+  currency     String  @default("USD")
+  // Shown on the public website; empty fields are simply left out there.
+  coachName    String?
+  coachBio     String?
+  address      String?
+  phone        String?
+  instagram    String?
+  openingHours String?
 }
 
 model GalleryImage {

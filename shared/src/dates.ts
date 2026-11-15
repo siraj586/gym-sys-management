@@ -38,6 +38,11 @@ export function addMonths(isoDate: string, months: number): string {
   return fromUtc(date);
 }
 
+/** Whole days from `from` to `to` (negative when `to` is earlier). */
+export function daysBetween(from: string, to: string): number {
+  return Math.round((toUtc(to).getTime() - toUtc(from).getTime()) / 86_400_000);
+}
+
 /** Today's date as seen on a wall clock in `timeZone` (an IANA name such as Asia/Beirut). */
 export function todayIn(timeZone: string, now: Date = new Date()): string {
   // en-CA formats dates as YYYY-MM-DD.

@@ -2,6 +2,7 @@ import { addDays, todayIn } from '@calisthenics/shared';
 import request from 'supertest';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { app } from '../../app.js';
+import { toDbDate } from '../../lib/dates.js';
 import { prisma } from '../../lib/prisma.js';
 import { signAccessToken } from '../../lib/tokens.js';
 import { resetDatabase } from '../../test/db.js';
@@ -29,13 +30,33 @@ beforeEach(async () => {
 });
 afterAll(() => prisma.$disconnect());
 
-async function member(firstName = 'Omar'): Promise<string> {
+/**
+ * A member who may train: one long subscription covering every day the tests
+ * use (from 2020 to a month from now). Pass `covered: false` for one without.
+ */
+async function member(firstName = 'Omar', covered = true): Promise<string> {
   const res = await api.post('/members', {
     firstName,
     lastName: 'Haddad',
     phone: '+961 71 000 111',
   });
-  return res.body.id as string;
+  const id = res.body.id as string;
+  if (covered) {
+    const plan = await prisma.plan.create({
+      data: { name: 'Monthly', priceCents: 5000, durationMonths: 1 },
+    });
+    await prisma.subscription.create({
+      data: {
+        memberId: id,
+        planId: plan.id,
+        planName: plan.name,
+        priceCents: plan.priceCents,
+        startDate: toDbDate('2020-01-01'),
+        endDate: toDbDate(addDays(today(), 30)),
+      },
+    });
+  }
+  return id;
 }
 
 describe('access', () => {
@@ -86,9 +107,34 @@ describe('checking in', () => {
     ).toBe(201);
   });
 
-  it('checks in a member without a valid subscription: the desk only warns', async () => {
-    const id = await member();
-    expect((await api.post('/check-ins', { memberId: id })).status).toBe(201);
+  it('refuses a member whose month does not cover the day, naming when it ended', async () => {
+    const never = await member('Hadi', false);
+    const res = await api.post('/check-ins', { memberId: never });
+    expect(res.status).toBe(409);
+    expect(res.body.error).toMatchObject({
+      code: 'NO_ACTIVE_SUBSCRIPTION',
+      details: { lastEndDate: null },
+    });
+
+    // Ended yesterday: blocked today, but yesterday itself was still covered.
+    const sara = await member('Sara', false);
+    const plan = await prisma.plan.create({
+      data: { name: 'Monthly', priceCents: 2000, durationMonths: 1 },
+    });
+    await prisma.subscription.create({
+      data: {
+        memberId: sara,
+        planId: plan.id,
+        planName: plan.name,
+        priceCents: plan.priceCents,
+        startDate: toDbDate(addDays(today(), -31)),
+        endDate: toDbDate(addDays(today(), -1)),
+      },
+    });
+    const blocked = await api.post('/check-ins', { memberId: sara });
+    expect(blocked.body.error.details).toEqual({ lastEndDate: addDays(today(), -1) });
+    const lastDay = await api.post('/check-ins', { memberId: sara, date: addDays(today(), -1) });
+    expect(lastDay.status).toBe(201);
   });
 
   it('refuses archived or unknown members, future dates and bad dates', async () => {

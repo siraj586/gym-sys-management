@@ -38,6 +38,13 @@ export const paymentInputSchema = z.object({
 export type PaymentFormInput = z.input<typeof paymentInputSchema>;
 export type PaymentInput = z.output<typeof paymentInputSchema>;
 
+/** "Renew and record payment": the next month of a plan, paid now. */
+export const renewalInputSchema = paymentInputSchema.extend({
+  planId: z.string().min(1, 'validation.required'),
+});
+export type RenewalFormInput = z.input<typeof renewalInputSchema>;
+export type RenewalInput = z.output<typeof renewalInputSchema>;
+
 export const voidPaymentSchema = z.object({
   reason: z.string().trim().min(1, 'validation.required').max(200, 'validation.tooLong'),
 });

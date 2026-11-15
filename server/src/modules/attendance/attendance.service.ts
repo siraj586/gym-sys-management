@@ -33,9 +33,8 @@ function toCheckIn(row: CheckInRow): CheckIn {
 const memberNotFound = () => new AppError(404, 'MEMBER_NOT_FOUND', 'This member does not exist.');
 
 /**
- * Records that a member came on `date` (today by default). Members with an
- * expired or unpaid subscription can still be checked in: the coach decides,
- * and the desk shows a warning. Archived members cannot.
+ * Records that a member came on `date` (today by default). The member needs a
+ * live subscription covering that day; archived members cannot check in.
  */
 export async function checkIn(
   input: { memberId: string; date?: string },
@@ -54,6 +53,31 @@ export async function checkIn(
   if (!member) throw memberNotFound();
   if (member.archivedAt) {
     throw new AppError(409, 'MEMBER_ARCHIVED', 'Restore this member before checking them in.');
+  }
+
+  // Only a member whose month covers that day may train: the coach renews first.
+  const day = toDbDate(date);
+  const covering = await prisma.subscription.findFirst({
+    where: {
+      memberId: input.memberId,
+      cancelledAt: null,
+      startDate: { lte: day },
+      endDate: { gte: day },
+    },
+    select: { id: true },
+  });
+  if (!covering) {
+    const last = await prisma.subscription.findFirst({
+      where: { memberId: input.memberId, cancelledAt: null, endDate: { lt: day } },
+      orderBy: { endDate: 'desc' },
+      select: { endDate: true },
+    });
+    throw new AppError(
+      409,
+      'NO_ACTIVE_SUBSCRIPTION',
+      'This member has no subscription for that day. Renew it first.',
+      { lastEndDate: last ? fromDbDate(last.endDate) : null },
+    );
   }
 
   try {

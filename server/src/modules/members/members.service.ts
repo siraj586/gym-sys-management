@@ -12,6 +12,7 @@ import {
   type MemberStatus,
   type MemberStatusCounts,
   type MemberSummary,
+  type RenewalInput,
   type Subscription,
   type SubscriptionInput,
 } from '@calisthenics/shared';
@@ -131,7 +132,7 @@ function toMemberData(input: MemberInput) {
  * The database version of memberStatus() in @calisthenics/shared, so the list
  * can be filtered and paginated in SQL. Keep the two in step: the tests compare them.
  */
-function statusWhere(status: MemberStatus, today: string): Prisma.MemberWhereInput {
+export function statusWhere(status: MemberStatus, today: string): Prisma.MemberWhereInput {
   const day = toDbDate(today);
   const horizon = toDbDate(addDays(today, EXPIRING_SOON_DAYS));
   const live = { cancelledAt: null };
@@ -274,59 +275,141 @@ export async function createSubscription(
   input: SubscriptionInput,
 ): Promise<Subscription> {
   const today = await gymToday();
+  const row = await prisma.$transaction((tx) =>
+    sellInTransaction(tx, memberId, input.planId, () => input.startDate),
+  );
+  return toSubscription(row, today);
+}
 
-  const row = await prisma.$transaction(async (tx) => {
-    // Locking the member row makes two simultaneous sales for the same member
-    // run one after the other, so the overlap check below cannot be raced.
-    const [member] = await tx.$queryRaw<{ archivedAt: Date | null }[]>`
-      SELECT "archivedAt" FROM "Member" WHERE id = ${memberId} FOR UPDATE`;
-    if (!member) throw memberNotFound();
-    if (member.archivedAt) {
+/**
+ * The start of the next month for a member paying on `paidAt`: a member who
+ * renews early keeps the days left, so the new month starts on the current end
+ * date; anyone else starts on the payment day.
+ */
+export function renewalStart(currentEnd: string | null, paidAt: string): string {
+  return currentEnd && currentEnd >= paidAt ? currentEnd : paidAt;
+}
+
+/**
+ * Sells one period of a plan to a member, inside a transaction. The plan's
+ * name and price are copied onto the subscription, and two live subscriptions
+ * of a member never overlap. They may touch: a renewal starts on the day the
+ * previous month ends (paid 3 Oct, ends 3 Nov, next month 3 Nov to 3 Dec).
+ */
+async function sellInTransaction(
+  tx: Prisma.TransactionClient,
+  memberId: string,
+  planId: string,
+  chooseStart: (currentEnd: string | null) => string,
+) {
+  // Locking the member row makes two simultaneous sales for the same member
+  // run one after the other, so the overlap check below cannot be raced.
+  const [member] = await tx.$queryRaw<{ archivedAt: Date | null }[]>`
+    SELECT "archivedAt" FROM "Member" WHERE id = ${memberId} FOR UPDATE`;
+  if (!member) throw memberNotFound();
+  if (member.archivedAt) {
+    throw new AppError(409, 'MEMBER_ARCHIVED', 'Restore this member before adding a subscription.');
+  }
+
+  const plan = await tx.plan.findUnique({ where: { id: planId } });
+  if (!plan) throw new AppError(400, 'PLAN_NOT_FOUND', 'This plan does not exist.');
+  if (!plan.isActive) {
+    throw new AppError(409, 'PLAN_INACTIVE', 'This plan is no longer offered.');
+  }
+
+  const latest = await tx.subscription.findFirst({
+    where: { memberId, cancelledAt: null },
+    orderBy: { endDate: 'desc' },
+    select: { endDate: true },
+  });
+  const startDate = chooseStart(latest ? fromDbDate(latest.endDate) : null);
+  const endDate = subscriptionEndDate(startDate, plan.durationMonths);
+
+  const overlapping = await tx.subscription.findFirst({
+    where: {
+      memberId,
+      cancelledAt: null,
+      startDate: { lt: toDbDate(endDate) },
+      endDate: { gt: toDbDate(startDate) },
+    },
+    select: { startDate: true, endDate: true },
+  });
+  if (overlapping) {
+    throw new AppError(
+      409,
+      'SUBSCRIPTION_OVERLAP',
+      'This period overlaps a subscription the member already has.',
+      { startDate: fromDbDate(overlapping.startDate), endDate: fromDbDate(overlapping.endDate) },
+    );
+  }
+
+  return tx.subscription.create({
+    data: {
+      memberId,
+      planId: plan.id,
+      planName: plan.name,
+      priceCents: plan.priceCents,
+      startDate: toDbDate(startDate),
+      endDate: toDbDate(endDate),
+    },
+    select: subscriptionSelect,
+  });
+}
+
+/**
+ * "Renew and record payment": sells the next month and records the money for
+ * it in one transaction, so a renewal never exists without its payment.
+ */
+export async function renew(
+  memberId: string,
+  input: RenewalInput,
+  recordedById: string,
+): Promise<Subscription> {
+  const today = await gymToday();
+  if (input.paidAt > today) {
+    throw new AppError(400, 'PAYMENT_IN_FUTURE', 'A payment cannot be dated after today.');
+  }
+
+  const subscriptionId = await prisma.$transaction(async (tx) => {
+    const sub = await sellInTransaction(tx, memberId, input.planId, (currentEnd) =>
+      renewalStart(currentEnd, input.paidAt),
+    );
+    if (input.amountCents > sub.priceCents) {
       throw new AppError(
         409,
-        'MEMBER_ARCHIVED',
-        'Restore this member before adding a subscription.',
+        'PAYMENT_EXCEEDS_BALANCE',
+        'This amount is more than the price of the month.',
+        { balanceCents: sub.priceCents },
       );
     }
-
-    const plan = await tx.plan.findUnique({ where: { id: input.planId } });
-    if (!plan) throw new AppError(400, 'PLAN_NOT_FOUND', 'This plan does not exist.');
-    if (!plan.isActive) {
-      throw new AppError(409, 'PLAN_INACTIVE', 'This plan is no longer offered.');
-    }
-
-    const endDate = subscriptionEndDate(input.startDate, plan.durationMonths);
-    const overlapping = await tx.subscription.findFirst({
-      where: {
-        memberId,
-        cancelledAt: null,
-        startDate: { lte: toDbDate(endDate) },
-        endDate: { gte: toDbDate(input.startDate) },
-      },
-      select: { startDate: true, endDate: true },
-    });
-    if (overlapping) {
-      throw new AppError(
-        409,
-        'SUBSCRIPTION_OVERLAP',
-        'This period overlaps a subscription the member already has.',
-        { startDate: fromDbDate(overlapping.startDate), endDate: fromDbDate(overlapping.endDate) },
-      );
-    }
-
-    return tx.subscription.create({
+    const payment = await tx.payment.create({
       data: {
-        memberId,
-        planId: plan.id,
-        planName: plan.name,
-        priceCents: plan.priceCents,
-        startDate: toDbDate(input.startDate),
-        endDate: toDbDate(endDate),
+        subscriptionId: sub.id,
+        amountCents: input.amountCents,
+        method: input.method,
+        paidAt: toDbDate(input.paidAt),
+        reference: input.reference,
+        note: input.note,
+        recordedById,
       },
-      select: subscriptionSelect,
+      select: { id: true },
     });
+    await tx.auditLog.create({
+      data: {
+        actorId: recordedById,
+        action: 'payment.record',
+        entity: 'Payment',
+        entityId: payment.id,
+        meta: { subscriptionId: sub.id, amountCents: input.amountCents, method: input.method },
+      },
+    });
+    return sub.id;
   });
 
+  const row = await prisma.subscription.findUniqueOrThrow({
+    where: { id: subscriptionId },
+    select: subscriptionSelect,
+  });
   return toSubscription(row, today);
 }
 

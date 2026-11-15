@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { addDays, addMonths, isIsoDate } from './dates.js';
 import type { Payment, PaymentStatus } from './payments.js';
+import type { SiteContent } from './site.js';
 
 // Validation messages are translation keys, as in auth.ts.
 
@@ -206,10 +207,8 @@ export interface MemberListResponse {
 
 export type MemberStatusCounts = Record<MemberStatus, number>;
 
-export interface GymSettings {
-  businessName: string;
+export interface GymSettings extends SiteContent {
   timezone: string;
-  currency: string;
   /** Today in the gym's timezone, so the app and the server agree on the date. */
   today: string;
 }

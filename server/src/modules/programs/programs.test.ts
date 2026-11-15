@@ -277,3 +277,22 @@ describe('assigning programs', () => {
     );
   });
 });
+
+describe('duplicating programs', () => {
+  it('copies every day and exercise under a new name, assigned to nobody', async () => {
+    const pushUp = await exercise('Push-up');
+    const plank = await exercise('Plank', 'SECONDS');
+    const { body } = await api.post('/programs', programBody(pushUp, plank));
+    await api.put(`/members/${await member()}/program`, { programId: body.id });
+
+    const copy = await api.post(`/programs/${body.id}/duplicate`, { suffix: ' (copy)' });
+    expect(copy.status).toBe(201);
+    expect(copy.body).toMatchObject({
+      name: 'Beginner strength (copy)',
+      activeMembers: 0,
+      days: body.days,
+    });
+    expect(copy.body.id).not.toBe(body.id);
+    expect((await api.post('/programs/nope/duplicate')).status).toBe(404);
+  });
+});

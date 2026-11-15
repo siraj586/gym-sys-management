@@ -55,6 +55,14 @@ programsRouter.put('/:id', async (req, res) => {
   res.json(await programsService.updateProgram(req.params.id, input));
 });
 
+const duplicateBody = z.object({ suffix: z.string().max(20).default(' (copy)') });
+
+/** The client sends the suffix in its own language: " (copy)" or " (نسخة)". */
+programsRouter.post('/:id/duplicate', async (req, res) => {
+  const { suffix } = duplicateBody.parse(req.body ?? {});
+  res.status(201).json(await programsService.duplicateProgram(req.params.id, suffix));
+});
+
 programsRouter.post('/:id/archive', async (req, res) => {
   res.json(await programsService.setArchived(req.params.id, true));
 });
