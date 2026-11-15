@@ -18,7 +18,7 @@ export function RequireRole({ role }: { role: Role }) {
   const { t } = useTranslation();
 
   if (state.status === 'loading') {
-    return <p className="text-muted">{t('common.loading')}</p>;
+    return <p className="p-6 text-muted">{t('common.loading')}</p>;
   }
   if (state.status === 'anonymous') {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;

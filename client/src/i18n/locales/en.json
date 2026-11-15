@@ -1,5 +1,7 @@
 {
-  "app": { "name": "Calisthenics Coach" },
+  "app": {
+    "name": "Calisthenics Coach"
+  },
   "common": {
     "loading": "Loading…",
     "save": "Save",
@@ -9,8 +11,17 @@
     "next": "Next",
     "pageOf": "Page {{page}} of {{pages}}"
   },
-  "nav": { "home": "Home", "login": "Log in", "logout": "Log out" },
-  "language": { "switchTo": "العربية" },
+  "nav": {
+    "home": "Home",
+    "login": "Log in",
+    "logout": "Log out",
+    "menu": "Menu",
+    "closeMenu": "Close menu"
+  },
+  "language": {
+    "switchTo": "العربية",
+    "switch": "Switch language (English / Arabic)"
+  },
   "home": {
     "title": "Master your own bodyweight",
     "subtitle": "A monthly membership: train any day the gym is open and follow a program built by your coach."
@@ -29,7 +40,9 @@
     "passwordHint": "At least 8 characters.",
     "confirmPassword": "Confirm password",
     "submitLogin": "Log in",
-    "submitRegister": "Create account"
+    "submitRegister": "Create account",
+    "account": "Account",
+    "backToSite": "← Back to the website"
   },
   "validation": {
     "required": "This field is required.",
@@ -51,7 +64,10 @@
     "tooMany": "There are too many items here.",
     "value": "Enter a number greater than zero.",
     "measurement": "This value is outside the usual range. Check it.",
-    "measurementEmpty": "Enter at least one measurement."
+    "measurementEmpty": "Enter at least one measurement.",
+    "currency": "Use a three-letter currency code, such as USD.",
+    "timezone": "Use a timezone name such as Asia/Beirut.",
+    "url": "Enter an image address that starts with https://"
   },
   "errors": {
     "INVALID_CREDENTIALS": "Email or password is incorrect.",
@@ -89,7 +105,10 @@
     "PAYMENT_EXCEEDS_BALANCE": "This amount is more than what is still owed.",
     "PAYMENT_NOT_FOUND": "This payment does not exist.",
     "PAYMENT_ALREADY_VOIDED": "This payment is already voided.",
-    "SUBSCRIPTION_OVERLAP": "This period overlaps the subscription from {{start}} to {{end}}. Choose a later start date, or cancel that subscription first."
+    "SUBSCRIPTION_OVERLAP": "This period overlaps the subscription from {{start}} to {{end}}. Choose a later start date, or cancel that subscription first.",
+    "NO_ACTIVE_SUBSCRIPTION": "This member has no subscription for that day. Renew it first.",
+    "IMAGE_NOT_FOUND": "This image does not exist any more.",
+    "MESSAGE_NOT_FOUND": "This message does not exist any more."
   },
   "status": {
     "ACTIVE": "Active",
@@ -105,13 +124,24 @@
       "overview": "Overview",
       "attendance": "Attendance",
       "members": "Members",
-      "programs": "Programs",
+      "programs": "Training programs",
       "payments": "Payments",
-      "plans": "Plans"
-    }
+      "plans": "Subscription plans",
+      "dashboard": "Dashboard",
+      "progress": "Progress",
+      "settings": "Settings"
+    },
+    "signedInAs": "Signed in as coach"
   },
-  "paymentStatus": { "PAID": "Paid", "PARTIAL": "Partly paid", "UNPAID": "Unpaid" },
-  "paymentMethod": { "CASH": "Cash", "BANK_TRANSFER": "Bank transfer" },
+  "paymentStatus": {
+    "PAID": "Paid",
+    "PARTIAL": "Partly paid",
+    "UNPAID": "Unpaid"
+  },
+  "paymentMethod": {
+    "CASH": "Cash",
+    "BANK_TRANSFER": "Bank transfer"
+  },
   "payments": {
     "title": "Payments",
     "month": "Month",
@@ -135,7 +165,40 @@
     "voided": "voided: {{reason}}",
     "voidExplain": "A voided payment stays in the history but no longer counts. Use this to correct a mistake.",
     "voidReason": "Why is this payment voided?",
-    "confirmVoid": "Void payment"
+    "confirmVoid": "Void payment",
+    "renewAndRecord": "Renew and record payment",
+    "renewShort": "Renew",
+    "recordTitle": "Record payment",
+    "member": "Member",
+    "newMonth": "New month: {{start}} to {{end}}",
+    "renewRule": "An expired member starts a new month on the payment day. A member who renews early keeps the remaining days: the new month starts on the current end date.",
+    "transferReference": "Transfer reference (optional)",
+    "saveAndRenew": "Save payment and renew",
+    "renewed": "Saved. {{name}}'s new month has started.",
+    "exportCsv": "Export CSV",
+    "incomeIn": "Income in {{month}}",
+    "paidCount_one": "{{count}} payment received",
+    "paidCount_other": "{{count}} payments received",
+    "notPaid": "Not paid",
+    "owingMembers_one": "{{count}} member",
+    "owingMembers_other": "{{count}} members",
+    "filter": "Show",
+    "show": {
+      "ALL": "All",
+      "PAID": "Paid",
+      "NOT_PAID": "Not paid"
+    },
+    "col": {
+      "member": "Member",
+      "month": "Month covered",
+      "amount": "Amount",
+      "method": "Method",
+      "date": "Date paid",
+      "status": "Status"
+    },
+    "ended": "Ended {{date}}",
+    "voidedShort": "Voided",
+    "neverDeleted": "Payments are voided, never deleted, so the income history always adds up."
   },
   "attendance": {
     "title": "Attendance",
@@ -155,7 +218,16 @@
     "lastVisit_other": "Last visit {{date}} · {{count}} visits in total",
     "neverCame": "No visits recorded yet.",
     "visits_one": "{{count}} visit",
-    "visits_other": "{{count}} visits"
+    "visits_other": "{{count}} visits",
+    "today": "Check-ins today",
+    "anyTime": "Members come any time the gym is open",
+    "pickMember": "Choose a member from the list first.",
+    "blockedEnded": "{{name}}'s subscription ended on {{date}}. Renew it to check them in.",
+    "blockedNever": "{{name}} has no subscription yet. Record their first month to check them in.",
+    "viewAll_one": "View the check-in",
+    "viewAll_other": "View all {{count}} check-ins",
+    "thisMonth": "check-ins this month",
+    "last": "last {{date}}"
   },
   "exercises": {
     "title": "Exercise library",
@@ -219,7 +291,11 @@
     "newExerciseOption": "+ New exercise…",
     "sets": "Sets",
     "target": "Target",
-    "targetLabel": { "REPS": "Reps", "SECONDS": "Seconds", "KG": "Kg" },
+    "targetLabel": {
+      "REPS": "Reps",
+      "SECONDS": "Seconds",
+      "KG": "Kg"
+    },
     "restSeconds": "Rest (s)",
     "note": "Note (optional)",
     "removeExercise": "Remove",
@@ -238,13 +314,38 @@
     "createFirst": "Create a program first",
     "showDays_one": "Show the {{count}} day",
     "showDays_other": "Show the {{count}} days",
-    "history": "Earlier programs"
+    "history": "Earlier programs",
+    "daysAWeek_one": "{{count}} day a week",
+    "daysAWeek_other": "{{count}} days a week",
+    "templatesNote": "Programs are templates. Assign one to any number of members.",
+    "pickOne": "Create a program to see it here.",
+    "levelIs": "Level: {{level}}",
+    "goalIs": "Goal: {{goal}}",
+    "archivedNote": "Archived: it can no longer be assigned.",
+    "duplicate": "Duplicate",
+    "copySuffix": " (copy)",
+    "daysLabel": "Program days",
+    "dayTab": "Day {{number}} · {{title}}",
+    "repsOrTime": "Reps or time",
+    "restCol": "Rest",
+    "coachNote": "Coach note",
+    "assignedTo_one": "Assigned to {{count}} member",
+    "assignedTo_other": "Assigned to {{count}} members",
+    "assignToMember": "Assign to member",
+    "removeMember": "Remove",
+    "confirmRemoveMember": "Take {{name}} off this program? It stays in their history.",
+    "oneAtATime": "A member has one active program at a time and sees it in the client portal.",
+    "change": "Change program"
   },
   "progress": {
     "open": "Progress",
     "backToMember": "← {{name}}'s profile",
     "title": "Progress · {{name}}",
-    "tabs": { "performance": "Results", "body": "Body", "notes": "Notes" },
+    "tabs": {
+      "performance": "Results",
+      "body": "Body",
+      "notes": "Notes"
+    },
     "addResult": "Record a result",
     "value": "Result",
     "date": "Date",
@@ -292,7 +393,10 @@
     "newNote": "New note",
     "noteHint": "A dated note on how training is going.",
     "saveNote": "Save note",
-    "noNotes": "No notes yet."
+    "noNotes": "No notes yet.",
+    "chooseMember": "Choose a member",
+    "chooseMemberNote": "Results, body measurements and notes",
+    "range": "{{from}} to {{to}}"
   },
   "overview": {
     "checkedInToday": "Checked in today",
@@ -338,7 +442,33 @@
     "account": "App account",
     "hasAccount": "Signs in to the portal",
     "noAccount": "No account",
-    "memberSince": "Member since"
+    "memberSince": "Member since",
+    "searchLabel": "Search by name or phone",
+    "filter": {
+      "ALL": "All",
+      "ACTIVE": "Active",
+      "EXPIRING": "Ending soon",
+      "EXPIRED": "Expired",
+      "NONE": "No subscription"
+    },
+    "col": {
+      "member": "Member",
+      "plan": "Plan",
+      "started": "Started",
+      "ends": "Ends",
+      "status": "Status"
+    },
+    "notStarted": "Not started",
+    "noPaymentYet": "No payment yet",
+    "monthRule": "A month runs from the payment day to the same day next month: paid 3 Oct, ends 3 Nov.",
+    "pickOne": "Choose a member in the list to see their details here.",
+    "since": "Member since {{date}}",
+    "coachOnlyNotes": "Coach notes, visible to the coach only",
+    "subscription": "Subscription",
+    "daysUsed": "{{used}} of {{total}} days used",
+    "paidOn": "Paid {{amount}} ({{method}}) on {{date}}",
+    "notPaidYet": "Not paid yet.",
+    "history": "Full profile: subscription and payment history"
   },
   "subscriptions": {
     "title": "Subscriptions",
@@ -370,7 +500,176 @@
     "months_other": "{{count}} months",
     "editNote": "Changes apply to new subscriptions only. Subscriptions already sold keep their name and price."
   },
-  "portal": { "title": "Client portal" },
-  "placeholder": { "note": "This page is built in a later phase." },
-  "notFound": { "title": "Page not found", "back": "Back to home" }
+  "portal": {
+    "title": "Client portal",
+    "mainNav": "Main navigation",
+    "nav": {
+      "home": "Home",
+      "program": "My program",
+      "attendance": "Attendance",
+      "progress": "Progress",
+      "profile": "Profile"
+    },
+    "hi": "Hi {{name}}",
+    "mySubscription": "My subscription",
+    "noSubscription": "No subscription yet. Pay your first month at the gym, in cash or by bank transfer, and it appears here.",
+    "daysLeft_one": "day left",
+    "daysLeft_other": "days left",
+    "daysSinceEnd_one": "day since it ended",
+    "daysSinceEnd_other": "days since it ended",
+    "daysUntilStart": "days until it starts",
+    "paidOn": "Paid {{amount}} on {{date}}.",
+    "renewAtGym": "Renew at the gym in cash or by bank transfer.",
+    "myProgram": "My training program",
+    "setByCoach": "{{name}} · set by your coach",
+    "noProgram": "Your coach has not given you a program yet.",
+    "fullProgram": "See the full program",
+    "myAttendance": "My attendance",
+    "visitsThisMonth_one": "visit this month",
+    "visitsThisMonth_other": "visits this month",
+    "todayIs": "Today, {{date}}",
+    "recordedOnArrival": "Recorded by the coach when you arrive.",
+    "allVisits": "All visits",
+    "noVisitsMonth": "No visits this month.",
+    "totalVisits_one": "{{count}} visit in total",
+    "totalVisits_other": "{{count}} visits in total",
+    "myProgress": "My progress",
+    "recordedByCoach": "Recorded by the coach",
+    "noProgress": "Your coach has not recorded any results yet.",
+    "sinceFirst": "{{change}} since first record",
+    "firstRecord": "First record",
+    "myDetails": "My details",
+    "emailFixed": "Your email is your login and cannot change here.",
+    "account": "Account",
+    "signedInAs": "Signed in as {{email}}"
+  },
+  "placeholder": {
+    "note": "This page is built in a later phase."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "back": "Back to home"
+  },
+  "brand": {
+    "suffix": "Calisthenics",
+    "short": "Cali"
+  },
+  "ends": {
+    "expiredAgo_one": "Expired yesterday",
+    "expiredAgo_other": "Expired {{count}} days ago",
+    "today": "Ends today",
+    "inDays_one": "Ends tomorrow",
+    "inDays_other": "Ends in {{count}} days",
+    "on": "Ends {{date}}"
+  },
+  "dashboard": {
+    "totalMembers": "Total members",
+    "joinedThisMonth_one": "{{count}} joined this month",
+    "joinedThisMonth_other": "{{count}} joined this month",
+    "activeSubscriptions": "Active subscriptions",
+    "activeNote": "Paid and inside their month",
+    "endingSoon": "Ending within 7 days",
+    "endingSoonNote": "Need a renewal soon",
+    "expired": "Expired",
+    "expiredNote": "Cannot check in",
+    "collected": "Collected this month",
+    "payments_one": "{{count}} payment",
+    "payments_other": "{{count}} payments",
+    "checkInsToday": "Check-ins today",
+    "soFar": "So far",
+    "renewalsDue": "Renewals due",
+    "renewalsDueNote": "Expired first, then ending within 7 days",
+    "noRenewals": "Nobody needs a renewal right now.",
+    "viewAllMembers": "View all members",
+    "revenue": "Monthly revenue ({{currency}})",
+    "revenueNote": "Last 6 months",
+    "revenueLabel": "Money received in each of the last six months",
+    "notPaid": "Not paid",
+    "neverPaid": "New member, no payment yet",
+    "partlyPaid": "Month partly paid",
+    "endedOn": "Month ended {{date}}",
+    "due": "{{amount}} due",
+    "openPayments": "Open payments"
+  },
+  "settings": {
+    "details": "Gym details",
+    "detailsNote": "Shown on the public website",
+    "businessName": "Gym name",
+    "coachName": "Coach name",
+    "coachNameHint": "Shown with \"Calisthenics\" as the site's name.",
+    "coachBio": "About the coach",
+    "address": "Address",
+    "phone": "Phone",
+    "instagram": "Instagram",
+    "openingHours": "Opening hours",
+    "currency": "Currency",
+    "currencyHint": "Three letters, such as USD or LBP.",
+    "timezone": "Timezone",
+    "timezoneHint": "Decides when a day starts, e.g. Asia/Beirut.",
+    "saved": "Saved.",
+    "gallery": "Gallery",
+    "galleryNote": "The first photo also leads the home page.",
+    "imageUrl": "Image address",
+    "caption": "Caption (optional)",
+    "addImage": "Add",
+    "noImages": "No photos yet. The gallery section stays hidden until you add one.",
+    "confirmRemoveImage": "Remove this photo from the website?",
+    "messages": "Messages from the website",
+    "unread_one": "{{count}} unread",
+    "unread_other": "{{count}} unread",
+    "noMessages": "No messages yet.",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "confirmRemoveMessage": "Delete this message? This cannot be undone."
+  },
+  "site": {
+    "sections": "Sections",
+    "nav": {
+      "home": "Home",
+      "about": "About",
+      "programs": "Programs",
+      "plans": "Plans",
+      "gallery": "Gallery",
+      "contact": "Contact"
+    },
+    "myAccount": "My account",
+    "eyebrow": "Calisthenics coaching · {{gym}}",
+    "eyebrowShort": "Calisthenics coaching",
+    "join": "Join now",
+    "seePlans": "See plans",
+    "aboutTitle": "About the coach",
+    "programsTitle": "Training programs",
+    "openEyebrow": "Come when it suits you",
+    "openTitle": "Open training",
+    "openText": "Your membership covers every day of the month. Train at any time during opening hours.",
+    "openingHours": "Opening hours: {{hours}}",
+    "seeMembership": "See the membership",
+    "ownEyebrow": "Built by your coach",
+    "ownTitle": "Your own program",
+    "ownText": "The coach gives you a training program with exercises, sets and reps, and records your progress on pull-ups, dips and skills.",
+    "createAccount": "Create your account",
+    "skills": "Skills you can learn",
+    "skill": {
+      "pullUps": "Pull-ups",
+      "pushUps": "Push-ups",
+      "dips": "Dips",
+      "muscleUp": "Muscle-up",
+      "frontLever": "Front lever",
+      "handstand": "Handstand"
+    },
+    "plansTitle": "Membership",
+    "plansNote": "Pay in cash or by bank transfer at the gym.",
+    "membershipFor_one": "Monthly membership",
+    "membershipFor_other": "{{count}}-month membership",
+    "perMonths_one": "/ month",
+    "perMonths_other": "/ {{count}} months",
+    "planDetail": "From the day you pay to the same day next month. Includes a training program from your coach and progress tracking in your account.",
+    "galleryTitle": "Gallery",
+    "contactTitle": "Contact",
+    "name": "Name",
+    "emailOrPhone": "Email or phone",
+    "message": "Message",
+    "send": "Send message",
+    "messageSent": "Thank you. Your message reached the coach."
+  }
 }

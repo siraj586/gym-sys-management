@@ -17,7 +17,7 @@ import { Owes } from '../../features/payments/SubscriptionPayments';
 import { useSettings } from '../../features/settings/SettingsContext';
 import { formatDate, formatTime } from '../../lib/format';
 
-/** A subscription covers today: no reason to stop at the desk. */
+/** A subscription covers today: the member may train. */
 const COVERED = new Set(['ACTIVE', 'EXPIRING']);
 
 /**
@@ -67,7 +67,12 @@ export function AttendancePage() {
             />
           </label>
         </div>
-        <CheckInDesk date={date} warn={isToday} checkedIn={checkedIn} onCheckedIn={list.reload} />
+        <CheckInDesk
+          date={date}
+          isToday={isToday}
+          checkedIn={checkedIn}
+          onCheckedIn={list.reload}
+        />
       </section>
 
       <section className="flex flex-col gap-4">
@@ -96,18 +101,21 @@ export function AttendancePage() {
 
 function CheckInDesk({
   date,
-  warn,
+  isToday,
   checkedIn,
   onCheckedIn,
 }: {
   date: string;
-  /** Today only: today's status says nothing about a day already past. */
-  warn: boolean;
+  /** Today's status only says something about today, not about a day already past. */
+  isToday: boolean;
   checkedIn: Set<string>;
   onCheckedIn: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [input, setInput] = useState('');
+  const [blocked, setBlocked] = useState<{ member: MemberSummary; endDate: string | null } | null>(
+    null,
+  );
   const [search, setSearch] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -123,13 +131,8 @@ function CheckInDesk({
   );
 
   const checkIn = async (m: MemberSummary) => {
-    // Not covered today: still allowed (the coach decides), but never by accident.
-    const question = t('attendance.confirmNotCovered', {
-      name: m.firstName,
-      status: t(`status.${m.status}`),
-    });
-    if (warn && !COVERED.has(m.status) && !window.confirm(question)) return;
     setError(null);
+    setBlocked(null);
     setBusyId(m.id);
     try {
       await apiFetch('/check-ins', { method: 'POST', body: { memberId: m.id, date } });
@@ -137,6 +140,11 @@ function CheckInDesk({
       setInput('');
       setSearch('');
     } catch (err) {
+      if (err instanceof ApiError && err.code === 'NO_ACTIVE_SUBSCRIPTION') {
+        const { lastEndDate } = err.details as { lastEndDate: string | null };
+        setBlocked({ member: m, endDate: lastEndDate });
+        return;
+      }
       // Someone else (another tab) already did it: the list just needs to catch up.
       if (err instanceof ApiError && err.code === 'ALREADY_CHECKED_IN') onCheckedIn();
       setError(errorMessage(err, t));
@@ -156,6 +164,27 @@ function CheckInDesk({
         autoFocus
         className="min-h-12 w-full rounded-md border border-line bg-surface px-4 text-lg text-fg outline-none focus:border-lime"
       />
+      {blocked && (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center gap-2 rounded-md bg-danger-wash px-3 py-2.5 text-[13px] text-danger-soft"
+        >
+          <span className="flex-1">
+            {blocked.endDate
+              ? t('attendance.blockedEnded', {
+                  name: blocked.member.firstName,
+                  date: formatDate(blocked.endDate, i18n.language),
+                })
+              : t('attendance.blockedNever', { name: blocked.member.firstName })}
+          </span>
+          <Link
+            to={`/admin/payments?member=${blocked.member.id}`}
+            className="font-semibold text-fg underline"
+          >
+            {t('payments.renewAndRecord')}
+          </Link>
+        </div>
+      )}
       {error && (
         <p role="alert" className="text-sm text-danger">
           {error}
@@ -177,7 +206,7 @@ function CheckInDesk({
                   className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
                 >
                   <div className="flex flex-col gap-1">
-                    <Link to={`/admin/members/${m.id}`} className="font-semibold hover:text-lime">
+                    <Link to={`/admin/members?m=${m.id}`} className="font-semibold hover:text-lime">
                       {m.firstName} {m.lastName}
                     </Link>
                     <div className="flex flex-wrap items-center gap-2">
@@ -189,6 +218,14 @@ function CheckInDesk({
                     <span className="text-sm font-semibold text-lime">
                       {t('attendance.checkedIn')}
                     </span>
+                  ) : isToday && !COVERED.has(m.status) ? (
+                    // No month covers today: renew first, as the design asks.
+                    <Link
+                      to={`/admin/payments?member=${m.id}`}
+                      className="flex min-h-11 items-center rounded-md border border-fg px-4 text-sm font-semibold hover:border-lime hover:text-lime"
+                    >
+                      {t('payments.renewAndRecord')}
+                    </Link>
                   ) : (
                     <Button disabled={busyId !== null} onClick={() => void checkIn(m)}>
                       {t('attendance.checkIn')}

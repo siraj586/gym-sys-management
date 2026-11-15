@@ -87,7 +87,11 @@ export function MemberPanel({ memberId, onChanged }: { memberId: string; onChang
             {t(m.archivedAt ? 'members.restore' : 'members.archive')}
           </Button>
         </div>
-        {actionError && <p role="alert" className="text-sm text-danger">{actionError}</p>}
+        {actionError && (
+          <p role="alert" className="text-sm text-danger">
+            {actionError}
+          </p>
+        )}
       </Card>
 
       <Card
@@ -127,7 +131,7 @@ export function MemberPanel({ memberId, onChanged }: { memberId: string; onChang
               {lastPayment
                 ? t('members.paidOn', {
                     amount: money(lastPayment.amountCents),
-                    method: t(`paymentMethod.${lastPayment.method}`).toLowerCase(),
+                    method: t(`paymentMethod.${lastPayment.method}`),
                     date: formatDate(lastPayment.paidAt, i18n.language),
                   })
                 : t('members.notPaidYet')}
@@ -176,7 +180,10 @@ function ProgramCard({ memberId }: { memberId: string }) {
       ) : (
         <span className="text-sm text-muted">{t('programs.noCurrent')}</span>
       )}
-      <Link to={`/admin/members/${memberId}#program`} className="text-[13px] font-semibold text-lime">
+      <Link
+        to={`/admin/members/${memberId}#program`}
+        className="text-[13px] font-semibold text-lime"
+      >
         {t(current ? 'programs.change' : 'programs.assign')}
       </Link>
     </Card>
@@ -210,7 +217,11 @@ function ProgressCard({ memberId }: { memberId: string }) {
     <Card
       title={t('progress.open')}
       action={
-        <ButtonLink variant="outline" to={`/admin/members/${memberId}/progress`} className="!px-3.5 text-[13px]">
+        <ButtonLink
+          variant="outline"
+          to={`/admin/members/${memberId}/progress`}
+          className="!px-3.5 text-[13px]"
+        >
           {t('progress.addResult')}
         </ButtonLink>
       }
@@ -223,7 +234,7 @@ function ProgressCard({ memberId }: { memberId: string }) {
         data.exercises.slice(0, 6).map((e) => {
           const change = e.latest - e.first;
           return (
-            <CardRow key={e.exerciseId} className="!flex-nowrap" >
+            <CardRow key={e.exerciseId} className="!flex-nowrap">
               <span className="min-w-0 flex-1 truncate font-semibold">{e.name}</span>
               <span className="text-soft" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 {t('progress.range', { from: unit(e.unit, e.first), to: unit(e.unit, e.latest) })}
