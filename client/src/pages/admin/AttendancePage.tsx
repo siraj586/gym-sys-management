@@ -263,7 +263,7 @@ function CheckInRow({ checkIn, onRemoved }: { checkIn: CheckIn; onRemoved: () =>
     <li className="flex flex-col gap-1 px-4 py-3">
       <div className="flex items-center justify-between gap-3">
         <span className="flex items-baseline gap-3">
-          <span className="w-16 shrink-0 text-sm text-muted" dir="ltr">
+          <span className="min-w-16 shrink-0 whitespace-nowrap text-sm text-muted" dir="ltr">
             {formatTime(checkIn.checkedInAt, i18n.language, timezone)}
           </span>
           <Link

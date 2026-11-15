@@ -23,9 +23,11 @@ export function endsText(t: TFunction, today: string, endDate: string, language:
   if (days === 0) return t('ends.today');
   if (days <= EXPIRING_SOON_DAYS) return t('ends.inDays', { count: days });
   return t('ends.on', {
-    date: new Intl.DateTimeFormat(language, { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
-      new Date(`${endDate}T00:00:00Z`),
-    ),
+    date: new Intl.DateTimeFormat(language, {
+      day: 'numeric',
+      month: 'short',
+      timeZone: 'UTC',
+    }).format(new Date(`${endDate}T00:00:00Z`)),
   });
 }
 
@@ -44,8 +46,15 @@ export function formatTime(isoTimestamp: string, language: string, timeZone: str
   }).format(new Date(isoTimestamp));
 }
 
+/** "$20" for whole amounts, "$19.50" otherwise, as the design writes prices. */
 export function formatMoney(cents: number, currency: string, language: string): string {
-  return new Intl.NumberFormat(language, { style: 'currency', currency }).format(cents / 100);
+  const whole = cents % 100 === 0;
+  return new Intl.NumberFormat(language, {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: whole ? 0 : 2,
+    maximumFractionDigits: whole ? 0 : 2,
+  }).format(cents / 100);
 }
 
 /** "50" or "50.5" typed in a form -> 5000 / 5050 cents. NaN when it is not a price. */

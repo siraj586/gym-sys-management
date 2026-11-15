@@ -93,9 +93,11 @@ export function MembersPage() {
     );
 
   const short = (iso: string) =>
-    new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
-      new Date(`${iso}T00:00:00Z`),
-    );
+    new Intl.DateTimeFormat(i18n.language, {
+      day: 'numeric',
+      month: 'short',
+      timeZone: 'UTC',
+    }).format(new Date(`${iso}T00:00:00Z`));
 
   return (
     <div className="flex flex-col gap-[18px]">
@@ -152,7 +154,10 @@ export function MembersPage() {
             <div
               className={`overflow-x-auto rounded-lg border border-line bg-surface px-4 pb-2 pt-1 transition-opacity ${list.loading ? 'opacity-60' : ''}`}
             >
-              <table className="w-full min-w-[500px] border-collapse text-start" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <table
+                className="w-full min-w-[500px] border-collapse text-start"
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
                 <thead>
                   <tr className="text-xs text-muted">
                     <th className="py-3 pe-2 text-start font-medium">{t('members.col.member')}</th>
@@ -168,7 +173,7 @@ export function MembersPage() {
                       key={m.id}
                       className={`border-t border-line ${m.id === selectedId ? 'bg-surface-2' : ''}`}
                     >
-                      <td className="py-3 pe-2">
+                      <td className="whitespace-nowrap py-3 pe-2">
                         <Link
                           to={`?${new URLSearchParams({ ...Object.fromEntries(params), m: m.id })}`}
                           replace
@@ -181,15 +186,15 @@ export function MembersPage() {
                           <span className="ms-2 text-xs text-muted">({t('members.archived')})</span>
                         )}
                       </td>
-                      <td className="px-2 py-3 text-soft">
+                      <td className="whitespace-nowrap px-2 py-3 text-soft">
                         {m.current
                           ? `${m.current.planName} · ${formatMoney(m.current.priceCents, currency, i18n.language)}`
                           : '—'}
                       </td>
-                      <td className="px-2 py-3 text-soft">
+                      <td className="whitespace-nowrap px-2 py-3 text-soft">
                         {m.current ? short(m.current.startDate) : t('members.notStarted')}
                       </td>
-                      <td className="px-2 py-3">
+                      <td className="whitespace-nowrap px-2 py-3">
                         {m.current ? short(m.current.endDate) : t('members.notStarted')}
                       </td>
                       <td className="py-3 ps-2">{statusCell(m)}</td>

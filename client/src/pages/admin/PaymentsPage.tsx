@@ -220,7 +220,7 @@ export function PaymentsPage() {
                 {rows.map((r) =>
                   r.kind === 'paid' ? (
                     <tr key={r.payment.id} className="border-t border-line">
-                      <td className="py-3 pe-2 font-semibold">
+                      <td className="whitespace-nowrap py-3 pe-2 font-semibold">
                         <Link
                           to={`/admin/members?m=${r.payment.member.id}`}
                           className="hover:text-lime"
@@ -228,7 +228,7 @@ export function PaymentsPage() {
                           {r.payment.member.firstName} {r.payment.member.lastName}
                         </Link>
                       </td>
-                      <td className="px-2 py-3 text-soft">
+                      <td className="whitespace-nowrap px-2 py-3 text-soft">
                         {formatPeriod(
                           r.payment.period.startDate,
                           r.payment.period.endDate,
@@ -236,18 +236,18 @@ export function PaymentsPage() {
                         )}
                       </td>
                       <td
-                        className={`px-2 py-3 text-end ${r.payment.voidedAt ? 'text-muted line-through' : ''}`}
+                        className={`whitespace-nowrap px-2 py-3 text-end ${r.payment.voidedAt ? 'text-muted line-through' : ''}`}
                       >
                         {money(r.payment.amountCents)}
                       </td>
-                      <td className="px-2 py-3 text-soft">
+                      <td className="whitespace-nowrap px-2 py-3 text-soft">
                         {t(`paymentMethod.${r.payment.method}`)}
                       </td>
-                      <td className="px-2 py-3 text-soft">
+                      <td className="whitespace-nowrap px-2 py-3 text-soft">
                         {formatDate(r.payment.paidAt, i18n.language)}
                       </td>
                       <td className="py-3 ps-2">
-                        <span className="flex flex-wrap items-center gap-2">
+                        <span className="flex items-center gap-2 whitespace-nowrap">
                           {r.payment.voidedAt ? (
                             <Pill tone="neutral">{t('payments.voidedShort')}</Pill>
                           ) : (
@@ -270,12 +270,12 @@ export function PaymentsPage() {
                       key={`due-${r.due.memberId}-${r.due.reason}-${r.due.subscriptionId ?? ''}`}
                       className="border-t border-line"
                     >
-                      <td className="py-3 pe-2 font-semibold">
+                      <td className="whitespace-nowrap py-3 pe-2 font-semibold">
                         <Link to={`/admin/members?m=${r.due.memberId}`} className="hover:text-lime">
                           {r.due.firstName} {r.due.lastName}
                         </Link>
                       </td>
-                      <td className="px-2 py-3 text-soft">
+                      <td className="whitespace-nowrap px-2 py-3 text-soft">
                         {r.due.reason === 'NEVER'
                           ? t('members.notStarted')
                           : r.due.reason === 'BALANCE'
@@ -284,7 +284,7 @@ export function PaymentsPage() {
                                 date: formatDate(r.due.endDate!, i18n.language),
                               })}
                       </td>
-                      <td className="px-2 py-3 text-end">
+                      <td className="whitespace-nowrap px-2 py-3 text-end">
                         {r.due.amountCents === null
                           ? '—'
                           : t('dashboard.due', { amount: money(r.due.amountCents) })}
@@ -292,7 +292,7 @@ export function PaymentsPage() {
                       <td className="px-2 py-3 text-muted">—</td>
                       <td className="px-2 py-3 text-muted">—</td>
                       <td className="py-3 ps-2">
-                        <span className="flex flex-wrap items-center gap-2">
+                        <span className="flex items-center gap-2 whitespace-nowrap">
                           <Pill tone="danger">{t('paymentStatus.UNPAID')}</Pill>
                           {r.due.reason === 'BALANCE' ? (
                             <Link

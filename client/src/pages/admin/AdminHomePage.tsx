@@ -204,7 +204,11 @@ function TodayCheckIns({ onChange }: { onChange: () => void }) {
   const { today, timezone } = useSettings();
   const list = useApi<CheckInListResponse>('/check-ins');
   const [member, setMember] = useState<MemberSummary | null>(null);
-  const [blocked, setBlocked] = useState<{ name: string; memberId: string; endDate: string | null } | null>(null);
+  const [blocked, setBlocked] = useState<{
+    name: string;
+    memberId: string;
+    endDate: string | null;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   // Remount the picker after each check-in so it starts empty.
@@ -261,7 +265,10 @@ function TodayCheckIns({ onChange }: { onChange: () => void }) {
         </Button>
       </div>
       {blocked && (
-        <div role="alert" className="flex flex-wrap items-center gap-2 rounded-md bg-danger-wash px-3 py-2.5 text-[13px] text-danger-soft">
+        <div
+          role="alert"
+          className="flex flex-wrap items-center gap-2 rounded-md bg-danger-wash px-3 py-2.5 text-[13px] text-danger-soft"
+        >
           <span className="flex-1">
             {blocked.endDate
               ? t('attendance.blockedEnded', {
@@ -278,14 +285,18 @@ function TodayCheckIns({ onChange }: { onChange: () => void }) {
           </Link>
         </div>
       )}
-      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
       {checkIns.length === 0 && list.data && (
         <p className="text-sm text-muted">{t('attendance.nobodyYet')}</p>
       )}
       {checkIns.slice(0, 5).map((c) => (
         <CardRow key={c.id}>
           <span
-            className="w-14 font-semibold text-lime"
+            className="min-w-14 whitespace-nowrap font-semibold text-lime"
             dir="ltr"
             style={{ fontVariantNumeric: 'tabular-nums' }}
           >

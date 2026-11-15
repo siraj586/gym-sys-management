@@ -38,6 +38,16 @@ Before seeding, open `server/.env` and set `JWT_ACCESS_SECRET` (`openssl rand -b
 | `npm run build`     | Production build of all three packages                     |
 | `npm run format`    | Prettier                                                   |
 
+To try every screen with realistic data, fill an **empty** database with demo members,
+payments, check-ins, programs and progress (it refuses a database that has members):
+
+```bash
+DEMO_PASSWORD=choose-a-long-password npm run db:demo -w @calisthenics/server
+```
+
+Then sign in as `demo-coach@example.test` (coach) or `demo-client@example.test` (client)
+with that password.
+
 The app calls the API through the Vite dev proxy (`/api`), so the browser sees one origin.
 
 ## Accounts and roles
