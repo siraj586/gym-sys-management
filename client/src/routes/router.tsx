@@ -5,6 +5,7 @@ import { AdminHomePage } from '../pages/admin/AdminHomePage';
 import { MemberFormPage } from '../pages/admin/MemberFormPage';
 import { MemberPage } from '../pages/admin/MemberPage';
 import { MembersPage } from '../pages/admin/MembersPage';
+import { PaymentsPage } from '../pages/admin/PaymentsPage';
 import { PlansPage } from '../pages/admin/PlansPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { PlaceholderPage } from '../pages/PlaceholderPage';
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
               { path: 'members/:id', element: <MemberPage /> },
               { path: 'members/:id/edit', element: <MemberFormPage /> },
               { path: 'plans', element: <PlansPage /> },
+              { path: 'payments', element: <PaymentsPage /> },
               { path: '*', element: <NotFoundPage /> },
             ],
           },

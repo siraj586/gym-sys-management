@@ -3,6 +3,7 @@ import {
   EXPIRING_SOON_DAYS,
   MEMBER_STATUSES,
   memberStatus,
+  paymentStatus,
   subscriptionEndDate,
   subscriptionStatus,
   type MemberDetail,
@@ -19,6 +20,7 @@ import { fromDbDate, toDbDate } from '../../lib/dates.js';
 import { AppError } from '../../lib/errors.js';
 import { prisma } from '../../lib/prisma.js';
 import { gymToday } from '../../lib/settings.js';
+import { paidCents, paymentSelect, toPayment } from '../payments/payments.service.js';
 
 export const PAGE_SIZE = 20;
 
@@ -34,6 +36,7 @@ const subscriptionSelect = {
   startDate: true,
   endDate: true,
   cancelledAt: true,
+  payments: { select: paymentSelect, orderBy: [{ paidAt: 'desc' }, { createdAt: 'desc' }] },
 } satisfies Prisma.SubscriptionSelect;
 
 type SubscriptionRow = Prisma.SubscriptionGetPayload<{ select: typeof subscriptionSelect }>;
@@ -44,6 +47,7 @@ function toSubscription(row: SubscriptionRow, today: string): Subscription {
     endDate: fromDbDate(row.endDate),
     cancelledAt: row.cancelledAt?.toISOString() ?? null,
   };
+  const paid = paidCents(row.payments);
   return {
     id: row.id,
     planId: row.planId,
@@ -51,6 +55,9 @@ function toSubscription(row: SubscriptionRow, today: string): Subscription {
     priceCents: row.priceCents,
     ...period,
     status: subscriptionStatus(period, today),
+    paidCents: paid,
+    paymentStatus: paymentStatus(row.priceCents, paid),
+    payments: row.payments.map(toPayment),
   };
 }
 
@@ -84,6 +91,7 @@ function toSummary(row: SummaryRow, today: string): MemberSummary {
       (max, s) => (!max || s.endDate > max ? s.endDate : max),
       null,
     ),
+    balanceCents: live.reduce((sum, s) => sum + Math.max(0, s.priceCents - s.paidCents), 0),
   };
 }
 

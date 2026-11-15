@@ -1,11 +1,11 @@
-import type { MemberStatus, MemberStatusCounts } from '@calisthenics/shared';
+import type { MemberStatus, MemberStatusCounts, PaymentSummary } from '@calisthenics/shared';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useApi } from '../../api/useApi';
 import { ButtonLink } from '../../components/ui/ButtonLink';
 import { errorMessage } from '../../features/auth/errorMessage';
 import { useSettings } from '../../features/settings/SettingsContext';
-import { formatDate } from '../../lib/format';
+import { formatDate, formatMoney } from '../../lib/format';
 
 // The order the coach cares about: who needs attention comes right after who is fine.
 const CARDS: { status: MemberStatus; accent: string }[] = [
@@ -15,6 +15,43 @@ const CARDS: { status: MemberStatus; accent: string }[] = [
   { status: 'UPCOMING', accent: 'text-soft' },
   { status: 'NONE', accent: 'text-muted' },
 ];
+
+/** This month's income and what members still owe, both linking to the payments page. */
+function MoneySummary() {
+  const { t, i18n } = useTranslation();
+  const { currency } = useSettings();
+  const { data, error } = useApi<PaymentSummary>('/payments/summary');
+  const money = (cents: number) => formatMoney(cents, currency, i18n.language);
+
+  if (error) return <p className="text-danger">{errorMessage(error, t)}</p>;
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Link
+        to="/admin/payments"
+        className="flex flex-col gap-1 rounded-lg border border-line bg-surface p-4 transition-colors hover:border-lime"
+      >
+        <span className="font-display text-4xl font-bold text-lime">
+          {data ? money(data.monthIncomeCents) : '–'}
+        </span>
+        <span className="text-sm text-soft">{t('overview.monthIncome')}</span>
+      </Link>
+      <Link
+        to="/admin/payments"
+        className="flex flex-col gap-1 rounded-lg border border-line bg-surface p-4 transition-colors hover:border-lime"
+      >
+        <span
+          className={`font-display text-4xl font-bold ${data?.unpaidCount ? 'text-danger' : 'text-muted'}`}
+        >
+          {data ? money(data.unpaidCents) : '–'}
+        </span>
+        <span className="text-sm text-soft">
+          {t('overview.unpaid', { count: data?.unpaidCount ?? 0 })}
+        </span>
+      </Link>
+    </div>
+  );
+}
 
 export function AdminHomePage() {
   const { t, i18n } = useTranslation();
@@ -30,6 +67,8 @@ export function AdminHomePage() {
         </div>
         <ButtonLink to="/admin/members/new">{t('members.add')}</ButtonLink>
       </div>
+
+      <MoneySummary />
 
       {error ? (
         <p className="text-danger">{errorMessage(error, t)}</p>

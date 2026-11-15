@@ -40,7 +40,9 @@
     "tooLong": "النص طويل جداً.",
     "date": "أدخل تاريخاً صحيحاً.",
     "price": "أدخل سعراً مثل 50 أو 49.50.",
-    "duration": "أدخل عدداً صحيحاً من الأشهر، من 1 إلى 24."
+    "duration": "أدخل عدداً صحيحاً من الأشهر، من 1 إلى 24.",
+    "amount": "أدخل مبلغاً أكبر من صفر، مثل 50 أو 49.50.",
+    "month": "اختر شهراً."
   },
   "errors": {
     "INVALID_CREDENTIALS": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
@@ -59,6 +61,11 @@
     "PLAN_INACTIVE": "هذه الخطة لم تعد معروضة.",
     "SUBSCRIPTION_NOT_FOUND": "هذا الاشتراك غير موجود.",
     "SUBSCRIPTION_ALREADY_CANCELLED": "هذا الاشتراك ملغى أصلاً.",
+    "SUBSCRIPTION_CANCELLED": "هذا الاشتراك ملغى، فلا يمكن تسجيل دفعات عليه.",
+    "PAYMENT_IN_FUTURE": "لا يمكن أن يكون تاريخ الدفعة بعد اليوم.",
+    "PAYMENT_EXCEEDS_BALANCE": "هذا المبلغ أكبر من المتبقي على الاشتراك.",
+    "PAYMENT_NOT_FOUND": "هذه الدفعة غير موجودة.",
+    "PAYMENT_ALREADY_VOIDED": "هذه الدفعة مُبطلة أصلاً.",
     "SUBSCRIPTION_OVERLAP": "هذه الفترة تتداخل مع الاشتراك من {{start}} إلى {{end}}. اختر تاريخ بداية لاحقاً، أو ألغِ ذلك الاشتراك أولاً."
   },
   "status": {
@@ -71,9 +78,48 @@
   },
   "admin": {
     "title": "لوحة تحكم المدرب",
-    "nav": { "overview": "نظرة عامة", "members": "الأعضاء", "plans": "الخطط" }
+    "nav": {
+      "overview": "نظرة عامة",
+      "members": "الأعضاء",
+      "payments": "المدفوعات",
+      "plans": "الخطط"
+    }
+  },
+  "paymentStatus": { "PAID": "مدفوع", "PARTIAL": "مدفوع جزئياً", "UNPAID": "غير مدفوع" },
+  "paymentMethod": { "CASH": "نقداً", "BANK_TRANSFER": "تحويل بنكي" },
+  "payments": {
+    "title": "المدفوعات",
+    "month": "الشهر",
+    "monthTotal": "المقبوض هذا الشهر",
+    "noneThisMonth": "لا توجد دفعات مسجّلة في هذا الشهر.",
+    "unpaidTitle": "مبالغ مستحقة",
+    "unpaidTotal": "المجموع {{amount}}",
+    "allPaid": "كل شيء مدفوع. لا أحد عليه مبلغ.",
+    "paidOf": "{{paid}} من {{price}}",
+    "owes": "مستحق: {{amount}}",
+    "record": "تسجيل دفعة",
+    "amount": "المبلغ ({{currency}})",
+    "method": "طريقة الدفع",
+    "date": "تاريخ الدفع",
+    "reference": "رقم مرجعي (اختياري)",
+    "referenceHint": "رقم الإيصال أو التحويل.",
+    "note": "ملاحظة (اختياري)",
+    "save": "حفظ الدفعة",
+    "tooMuch": "المتبقي على هذا الاشتراك {{balance}} فقط.",
+    "void": "إبطال",
+    "voided": "مُبطلة: {{reason}}",
+    "voidExplain": "الدفعة المُبطلة تبقى في السجل لكنها لا تُحسب. استخدم هذا لتصحيح خطأ.",
+    "voidReason": "لماذا تُبطل هذه الدفعة؟",
+    "confirmVoid": "إبطال الدفعة"
   },
   "overview": {
+    "monthIncome": "المقبوض هذا الشهر",
+    "unpaid_zero": "لا توجد مبالغ مستحقة",
+    "unpaid_one": "مستحق على اشتراك واحد",
+    "unpaid_two": "مستحق على اشتراكين",
+    "unpaid_few": "مستحق على {{count}} اشتراكات",
+    "unpaid_many": "مستحق على {{count}} اشتراكاً",
+    "unpaid_other": "مستحق على {{count}} اشتراك",
     "ACTIVE": "أعضاء نشطون",
     "EXPIRING": "تنتهي خلال 7 أيام",
     "EXPIRED": "منتهية ولم تُجدَّد",
@@ -97,7 +143,7 @@
     "count_many": "{{count}} عضواً",
     "count_other": "{{count}} عضو",
     "pages": "الصفحات",
-    "paidThrough": "مدفوع حتى {{date}}",
+    "paidThrough": "صالح حتى {{date}}",
     "neverPaid": "لا يوجد اشتراك بعد",
     "archived": "مؤرشف",
     "archive": "أرشفة",

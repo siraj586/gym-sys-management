@@ -17,6 +17,7 @@ import { SelectField } from '../../components/ui/SelectField';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { TextField } from '../../components/ui/TextField';
 import { errorMessage } from '../../features/auth/errorMessage';
+import { Owes, SubscriptionPayments } from '../../features/payments/SubscriptionPayments';
 import { useSettings } from '../../features/settings/SettingsContext';
 import { formatDate, formatMoney } from '../../lib/format';
 
@@ -94,6 +95,7 @@ function MemberProfile({ member, reload }: { member: MemberDetail; reload: () =>
                 {t('members.paidThrough', { date: date(member.paidThrough) })}
               </span>
             )}
+            {member.balanceCents > 0 && <Owes cents={member.balanceCents} />}
           </div>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -159,6 +161,7 @@ function MemberProfile({ member, reload }: { member: MemberDetail; reload: () =>
                   sub={sub}
                   busy={busy}
                   onCancel={() => cancelSubscription(sub)}
+                  onChange={reload}
                 />
               ))}
             </ul>
@@ -191,41 +194,46 @@ function SubscriptionRow({
   sub,
   busy,
   onCancel,
+  onChange,
 }: {
   sub: Subscription;
   busy: boolean;
   onCancel: () => void;
+  onChange: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const { currency } = useSettings();
   const canCancel = sub.status !== 'CANCELLED' && sub.status !== 'EXPIRED';
 
   return (
-    <li className="flex flex-wrap items-center justify-between gap-3 py-3">
-      <div className="flex flex-col gap-0.5">
-        <span className="font-semibold">
-          {sub.planName} · {formatMoney(sub.priceCents, currency, i18n.language)}
-        </span>
-        <span className="text-sm text-soft">
-          {t('subscriptions.period', {
-            start: formatDate(sub.startDate, i18n.language),
-            end: formatDate(sub.endDate, i18n.language),
-          })}
-        </span>
+    <li className="flex flex-col gap-3 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-0.5">
+          <span className="font-semibold">
+            {sub.planName} · {formatMoney(sub.priceCents, currency, i18n.language)}
+          </span>
+          <span className="text-sm text-soft">
+            {t('subscriptions.period', {
+              start: formatDate(sub.startDate, i18n.language),
+              end: formatDate(sub.endDate, i18n.language),
+            })}
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <StatusBadge status={sub.status} />
+          {canCancel && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={onCancel}
+              className="min-h-11 px-2 text-sm text-muted hover:text-danger disabled:opacity-60"
+            >
+              {t('subscriptions.cancel')}
+            </button>
+          )}
+        </div>
       </div>
-      <div className="flex items-center gap-3">
-        <StatusBadge status={sub.status} />
-        {canCancel && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={onCancel}
-            className="min-h-11 px-2 text-sm text-muted hover:text-danger disabled:opacity-60"
-          >
-            {t('subscriptions.cancel')}
-          </button>
-        )}
-      </div>
+      <SubscriptionPayments sub={sub} onChange={onChange} />
     </li>
   );
 }

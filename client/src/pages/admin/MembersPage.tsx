@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { ButtonLink } from '../../components/ui/ButtonLink';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { errorMessage } from '../../features/auth/errorMessage';
+import { Owes } from '../../features/payments/SubscriptionPayments';
 import { formatDate } from '../../lib/format';
 
 function isMemberStatus(value: string | null): value is MemberStatus {
@@ -143,10 +144,15 @@ export function MembersPage() {
                       {m.phone}
                     </span>
                   </span>
-                  <span className="text-sm text-soft">
-                    {m.paidThrough
-                      ? t('members.paidThrough', { date: formatDate(m.paidThrough, i18n.language) })
-                      : t('members.neverPaid')}
+                  <span className="flex flex-col text-sm text-soft">
+                    <span>
+                      {m.paidThrough
+                        ? t('members.paidThrough', {
+                            date: formatDate(m.paidThrough, i18n.language),
+                          })
+                        : t('members.neverPaid')}
+                    </span>
+                    {m.balanceCents > 0 && <Owes cents={m.balanceCents} />}
                   </span>
                   <span className="flex gap-2">
                     {m.archivedAt && (

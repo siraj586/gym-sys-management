@@ -1,10 +1,12 @@
 import {
   memberInputSchema,
   memberListQuerySchema,
+  paymentInputSchema,
   subscriptionInputSchema,
 } from '@calisthenics/shared';
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../../middleware/auth.js';
+import { currentUser, requireAuth, requireRole } from '../../middleware/auth.js';
+import * as paymentsService from '../payments/payments.service.js';
 import * as membersService from './members.service.js';
 
 /** The coach's member records. Clients will read their own profile through /portal routes. */
@@ -51,4 +53,11 @@ subscriptionsRouter.use(requireAuth, requireRole('OWNER'));
 
 subscriptionsRouter.post('/:id/cancel', async (req, res) => {
   res.json(await membersService.cancelSubscription(req.params.id));
+});
+
+subscriptionsRouter.post('/:id/payments', async (req, res) => {
+  const input = paymentInputSchema.parse(req.body);
+  res
+    .status(201)
+    .json(await paymentsService.recordPayment(req.params.id, input, currentUser(req).id));
 });

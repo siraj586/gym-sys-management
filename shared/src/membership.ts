@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { addDays, addMonths, isIsoDate } from './dates.js';
+import type { Payment, PaymentStatus } from './payments.js';
 
 // Validation messages are translation keys, as in auth.ts.
 
@@ -165,6 +166,11 @@ export interface Subscription {
   endDate: string;
   cancelledAt: string | null;
   status: SubscriptionStatus;
+  /** Sum of non-voided payments. */
+  paidCents: number;
+  paymentStatus: PaymentStatus;
+  /** Newest first, voided ones included so the history is complete. */
+  payments: Payment[];
 }
 
 export interface MemberSummary {
@@ -178,6 +184,8 @@ export interface MemberSummary {
   status: MemberStatus;
   /** Last paid day across all live subscriptions, or null when there are none. */
   paidThrough: string | null;
+  /** Still owed across live subscriptions (0 when everything is paid). */
+  balanceCents: number;
 }
 
 export interface MemberDetail extends MemberSummary {

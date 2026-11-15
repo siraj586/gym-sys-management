@@ -40,7 +40,9 @@
     "tooLong": "This is too long.",
     "date": "Enter a valid date.",
     "price": "Enter a price such as 50 or 49.50.",
-    "duration": "Enter a whole number of months, from 1 to 24."
+    "duration": "Enter a whole number of months, from 1 to 24.",
+    "amount": "Enter an amount greater than zero, such as 50 or 49.50.",
+    "month": "Choose a month."
   },
   "errors": {
     "INVALID_CREDENTIALS": "Email or password is incorrect.",
@@ -59,6 +61,11 @@
     "PLAN_INACTIVE": "This plan is no longer offered.",
     "SUBSCRIPTION_NOT_FOUND": "This subscription does not exist.",
     "SUBSCRIPTION_ALREADY_CANCELLED": "This subscription is already cancelled.",
+    "SUBSCRIPTION_CANCELLED": "This subscription is cancelled, so it cannot take payments.",
+    "PAYMENT_IN_FUTURE": "A payment cannot be dated after today.",
+    "PAYMENT_EXCEEDS_BALANCE": "This amount is more than what is still owed.",
+    "PAYMENT_NOT_FOUND": "This payment does not exist.",
+    "PAYMENT_ALREADY_VOIDED": "This payment is already voided.",
     "SUBSCRIPTION_OVERLAP": "This period overlaps the subscription from {{start}} to {{end}}. Choose a later start date, or cancel that subscription first."
   },
   "status": {
@@ -71,9 +78,44 @@
   },
   "admin": {
     "title": "Coach dashboard",
-    "nav": { "overview": "Overview", "members": "Members", "plans": "Plans" }
+    "nav": {
+      "overview": "Overview",
+      "members": "Members",
+      "payments": "Payments",
+      "plans": "Plans"
+    }
+  },
+  "paymentStatus": { "PAID": "Paid", "PARTIAL": "Partly paid", "UNPAID": "Unpaid" },
+  "paymentMethod": { "CASH": "Cash", "BANK_TRANSFER": "Bank transfer" },
+  "payments": {
+    "title": "Payments",
+    "month": "Month",
+    "monthTotal": "Received this month",
+    "noneThisMonth": "No payments recorded in this month.",
+    "unpaidTitle": "Still owed",
+    "unpaidTotal": "{{amount}} in total",
+    "allPaid": "Everything is paid. Nobody owes anything.",
+    "paidOf": "{{paid}} of {{price}}",
+    "owes": "Owes {{amount}}",
+    "record": "Record payment",
+    "amount": "Amount ({{currency}})",
+    "method": "Method",
+    "date": "Date paid",
+    "reference": "Reference (optional)",
+    "referenceHint": "Receipt or transfer number.",
+    "note": "Note (optional)",
+    "save": "Save payment",
+    "tooMuch": "Only {{balance}} is still owed on this subscription.",
+    "void": "Void",
+    "voided": "voided: {{reason}}",
+    "voidExplain": "A voided payment stays in the history but no longer counts. Use this to correct a mistake.",
+    "voidReason": "Why is this payment voided?",
+    "confirmVoid": "Void payment"
   },
   "overview": {
+    "monthIncome": "Received this month",
+    "unpaid_one": "Owed on {{count}} subscription",
+    "unpaid_other": "Owed on {{count}} subscriptions",
     "ACTIVE": "Active members",
     "EXPIRING": "Expire within 7 days",
     "EXPIRED": "Expired, not renewed",
@@ -93,7 +135,7 @@
     "count_one": "{{count}} member",
     "count_other": "{{count}} members",
     "pages": "Pages",
-    "paidThrough": "Paid through {{date}}",
+    "paidThrough": "Valid until {{date}}",
     "neverPaid": "No subscription yet",
     "archived": "Archived",
     "archive": "Archive",
