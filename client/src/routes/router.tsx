@@ -1,5 +1,11 @@
 import { createBrowserRouter } from 'react-router';
+import { AdminLayout } from '../components/layout/AdminLayout';
 import { SiteLayout } from '../components/layout/SiteLayout';
+import { AdminHomePage } from '../pages/admin/AdminHomePage';
+import { MemberFormPage } from '../pages/admin/MemberFormPage';
+import { MemberPage } from '../pages/admin/MemberPage';
+import { MembersPage } from '../pages/admin/MembersPage';
+import { PlansPage } from '../pages/admin/PlansPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { PlaceholderPage } from '../pages/PlaceholderPage';
 import { HomePage } from '../pages/public/HomePage';
@@ -18,7 +24,21 @@ export const router = createBrowserRouter([
       { path: '/login', element: <LoginPage /> },
       {
         element: <RequireRole role="OWNER" />,
-        children: [{ path: '/admin/*', element: <PlaceholderPage titleKey="admin.title" /> }],
+        children: [
+          {
+            path: '/admin',
+            element: <AdminLayout />,
+            children: [
+              { index: true, element: <AdminHomePage /> },
+              { path: 'members', element: <MembersPage /> },
+              { path: 'members/new', element: <MemberFormPage /> },
+              { path: 'members/:id', element: <MemberPage /> },
+              { path: 'members/:id/edit', element: <MemberFormPage /> },
+              { path: 'plans', element: <PlansPage /> },
+              { path: '*', element: <NotFoundPage /> },
+            ],
+          },
+        ],
       },
       {
         element: <RequireRole role="CLIENT" />,
