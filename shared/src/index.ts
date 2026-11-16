@@ -1,15 +1,13 @@
-import { z } from 'zod';
-
-/** Account roles. The owner manages the gym; a client only sees their own data. */
-export const ROLES = ['OWNER', 'CLIENT'] as const;
-export type Role = (typeof ROLES)[number];
-
-/** Every error response from the API has this shape. */
-export const apiErrorBodySchema = z.object({
-  error: z.object({
-    code: z.string(),
-    message: z.string(),
-    details: z.unknown().optional(),
-  }),
-});
-export type ApiErrorBody = z.infer<typeof apiErrorBodySchema>;
+export * from './attendance.js';
+export * from './auth.js';
+export * from './checkout.js';
+export * from './dashboard.js';
+export * from './dates.js';
+export * from './errors.js';
+export * from './membership.js';
+export * from './payments.js';
+export * from './portal.js';
+export * from './programs.js';
+export * from './progress.js';
+export * from './roles.js';
+export * from './site.js';

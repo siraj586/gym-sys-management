@@ -16,6 +16,13 @@
   --color-lime-dim: #4e5f1e;
   --color-warn: #f5b83a;
   --color-danger: #ff8e80;
+  /* Filled status pills and notices: a dark wash of each status color. */
+  --color-lime-wash: #23300b;
+  --color-warn-wash: #33270a;
+  --color-danger-wash: #3a1512;
+  --color-danger-soft: #ffb4a9; /* text on the danger wash */
+  --color-chip: #23261e; /* the selected filter chip */
+  --color-dash: #4a5040; /* dashed placeholder borders */
 
   /* Inter and Barlow have no Arabic letters, so the browser falls through to Cairo. */
   --font-sans: Inter, Cairo, system-ui, sans-serif;
@@ -28,4 +35,20 @@ html {
 
 body {
   @apply bg-ink font-sans text-fg antialiased;
+}
+
+/* Arabic pages read in Cairo throughout, headings included. */
+:root[lang='ar'] body,
+:root[lang='ar'] .font-display {
+  font-family: Cairo, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

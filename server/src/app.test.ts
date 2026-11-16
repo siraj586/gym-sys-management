@@ -20,7 +20,7 @@ describe('API foundation', () => {
 
   it('rejects malformed JSON with a 400, not a server error', async () => {
     const res = await request(app)
-      .post('/api/health')
+      .post('/api/auth/login')
       .set('Content-Type', 'application/json')
       .send('{not json');
     expect(res.status).toBe(400);
